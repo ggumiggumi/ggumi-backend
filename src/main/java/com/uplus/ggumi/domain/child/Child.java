@@ -2,6 +2,7 @@ package com.uplus.ggumi.domain.child;
 
 import com.uplus.ggumi.domain.global.BaseTimeEntity;
 import com.uplus.ggumi.domain.parent.Parent;
+import com.uplus.ggumi.dto.child.ChildProfileRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +34,11 @@ public class Child extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name="parent_id")
     private Parent parent;
+
+    public void update(ChildProfileRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.birthday = requestDto.getBirthday();
+        this.profileCode = requestDto.getProfileCode();
+        this.gender = requestDto.getGender();
+    }
 }
