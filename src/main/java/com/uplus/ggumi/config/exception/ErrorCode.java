@@ -23,7 +23,12 @@ public enum ErrorCode {
 	FAILED_TO_RETRIEVE_KAKAO_USER_INFO(401, "카카오로부터 유저 정보 발급에 실패했습니다.", 1011),
 	NO_TOKEN_ACCOUNT(401, "토큰에 해당하는 계정 정보가 없습니다.", 1012),
 	UNAUTHORIZED_ACCESS(401, "권한이 없는 환자의 정보를 조회할 수 없습니다.", 1013),
-	;
+
+
+	PARENT_NOT_EXIST(500, "부모 정보 찾기를 실패하였습니다", 1200),
+	CHILD_NOT_EXIST(500, "자녀 정보 찾기를 실패하를습니다.", 1201),
+	CHILDREN_NOT_EXIST(500, "자녀 리스트가 없습니다.", 1202 ),
+	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203 );
 
 
 
