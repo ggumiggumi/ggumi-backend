@@ -29,5 +29,9 @@ public class BookDetailController {
         return ResponseUtil.SUCCESS("싫어요를 눌렀습니다.", bookDetailService.setHate(requestDto.getBookId(), requestDto.getChildId()));
     }
 
+    @PostMapping("/undo")
+    public ResponseDto<Long> undoFeedback(@RequestBody FeedbackRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("피드백을 취소했습니다.", bookDetailService.undoFeedback(requestDto.getBookId(), requestDto.getChildId()));
+    }
 
 }

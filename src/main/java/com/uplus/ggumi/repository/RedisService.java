@@ -9,4 +9,5 @@ public interface RedisService {
 
     Long setHate(Integer key, Integer value);
 
+    Long undoFeedback(Integer key, Integer value);
 }
