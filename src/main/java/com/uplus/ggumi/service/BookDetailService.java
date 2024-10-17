@@ -34,6 +34,10 @@ public class BookDetailService implements RedisService {
         /* 좋아요/싫어요 모든 정보를 지워줌 */
         redisTemplate.opsForSet().remove(HATE + key.toString(), value.toString());
         return redisTemplate.opsForSet().remove(LIKE + key, value.toString());
+    }
 
+    @Override
+    public Long getTotalLikes(Integer key) {
+        return redisTemplate.opsForSet().size(LIKE + key.toString());
     }
 }

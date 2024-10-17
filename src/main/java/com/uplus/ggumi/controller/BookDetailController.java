@@ -4,12 +4,10 @@ import com.uplus.ggumi.config.response.ResponseDto;
 import com.uplus.ggumi.config.response.ResponseUtil;
 import com.uplus.ggumi.dto.bookDetail.FeedbackRequestDto;
 import com.uplus.ggumi.service.BookDetailService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -18,6 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookDetailController {
 
     private final BookDetailService bookDetailService;
+
+    @GetMapping("/{bookId}/total-likes")
+    public ResponseDto<Long> totalLikes(@PathVariable Integer bookId) {
+        return ResponseUtil.SUCCESS("총 좋아요 개수를 가져왔습니다.", bookDetailService.getTotalLikes(bookId));
+    }
 
     @PostMapping("/like")
     public ResponseDto<Long> clickLikeBook(@RequestBody FeedbackRequestDto requestDto) {
