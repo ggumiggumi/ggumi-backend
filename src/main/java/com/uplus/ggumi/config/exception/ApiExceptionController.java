@@ -2,13 +2,15 @@ package com.uplus.ggumi.config.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 
-@RestControllerAdvice(basePackages = "com.moyeota.moyeotaproject.controller")
+@RestControllerAdvice(basePackages = "com.uplus.ggumi.controller")
 public class ApiExceptionController {
 
 	@ExceptionHandler(ApiException.class)
@@ -25,6 +27,18 @@ public class ApiExceptionController {
 	public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
 		ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), 500, 500);
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@ExceptionHandler(JwtException.class)
+	public ResponseEntity<ErrorResponse> handleJwtException(JwtException exception) {
+		ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), 401, 401);
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException exception) {
+		ErrorResponse errorResponse = new ErrorResponse(exception.getMessage(), 500, 403);
+		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
 
 	@ExceptionHandler(RuntimeException.class)
