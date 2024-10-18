@@ -1,16 +1,24 @@
 package com.uplus.ggumi.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.uplus.ggumi.config.response.ResponseDto;
 import com.uplus.ggumi.config.response.ResponseUtil;
 import com.uplus.ggumi.dto.child.ChildProfileRequestDto;
 import com.uplus.ggumi.dto.child.ChildProfileResponseDto;
 import com.uplus.ggumi.service.ChildManagerService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,16 +28,14 @@ public class ChildController {
 
     private final ChildManagerService childManagerService;
 
-    // {parentId}가 들어있는 부분은 추후 jwt 활용 코드로 수정 필요
-
-    @PostMapping("/{parentId}")
-    public ResponseDto<Long> createChild(@PathVariable Long parentId, @RequestBody ChildProfileRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("자녀 프로필 생성에 성공하였습니다.", childManagerService.createChildProfile(parentId, requestDto));
+    @PostMapping("")
+    public ResponseDto<Long> createChild(HttpServletRequest request, @RequestBody ChildProfileRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("자녀 프로필 생성에 성공하였습니다.", childManagerService.createChildProfile(request.getHeader("Authorization"), requestDto));
     }
 
-    @GetMapping("/list/{parentId}")
-    public ResponseDto<List<ChildProfileResponseDto>> getChildren(@PathVariable Long parentId) {
-        return ResponseUtil.SUCCESS("자녀 프로필 정보 리스트를 가져오는 것을 성공하였습니다.", childManagerService.getChildProfileList(parentId));
+    @GetMapping("/list")
+    public ResponseDto<List<ChildProfileResponseDto>> getChildren(HttpServletRequest request) {
+        return ResponseUtil.SUCCESS("자녀 프로필 정보 리스트를 가져오는 것을 성공하였습니다.", childManagerService.getChildProfileList(request.getHeader("Authorization")));
     }
 
     @GetMapping("/{childId}")
@@ -42,8 +48,8 @@ public class ChildController {
         return ResponseUtil.SUCCESS("자녀 프로필 업데이트에 성공하였습니다.", childManagerService.updateChildProfile(childId, requestDto));
     }
 
-    @GetMapping("/{parentId}/can-create")
-    public ResponseDto<Integer> allowChildProfileCreation(@PathVariable Long parentId) {
-        return ResponseUtil.SUCCESS("자녀 프로필 생성이 가능합니다.", childManagerService.checkChildCreationLimit(parentId)); // 실제 화면 이동 로직 필요
+    @GetMapping("/can-create")
+    public ResponseDto<Integer> allowChildProfileCreation(HttpServletRequest request) {
+        return ResponseUtil.SUCCESS("자녀 프로필 생성이 가능합니다.", childManagerService.checkChildCreationLimit(request.getHeader("Authorization"))); // 실제 화면 이동 로직 필요
     }
 }

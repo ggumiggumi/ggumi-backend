@@ -1,5 +1,10 @@
 package com.uplus.ggumi.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.uplus.ggumi.config.exception.ApiException;
 import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.child.Child;
@@ -7,25 +12,20 @@ import com.uplus.ggumi.domain.parent.Parent;
 import com.uplus.ggumi.dto.child.ChildProfileRequestDto;
 import com.uplus.ggumi.dto.child.ChildProfileResponseDto;
 import com.uplus.ggumi.repository.ChildRepository;
-import com.uplus.ggumi.repository.ParentRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ChildManagerService {
 
+    private final ParentService parentService;
     private final ChildRepository childRepository;
-    private final ParentRepository parentRepository;
 
-    public Long createChildProfile(Long parentId, ChildProfileRequestDto requestDto) {
-        Parent parent = parentRepository.findById(parentId)
-                .orElseThrow(() -> new ApiException(ErrorCode.PARENT_NOT_EXIST));// 임시 Parent 객체 find
+    public Long createChildProfile(String accessToken, ChildProfileRequestDto requestDto) {
+        Parent parent = parentService.getAccountByToken(accessToken);
 
-        checkChildCreationLimit(parentId);
+        checkChildCreationLimit(accessToken);
 
         Child child = Child.builder()
                 .name(requestDto.getName())
@@ -38,8 +38,9 @@ public class ChildManagerService {
         return childRepository.save(child).getId();
     }
 
-    public List<ChildProfileResponseDto> getChildProfileList(Long parentId) {
-        List<Child> children = childRepository.findByParentId(parentId);
+    public List<ChildProfileResponseDto> getChildProfileList(String accessToken) {
+        Parent parent = parentService.getAccountByToken(accessToken);
+        List<Child> children = childRepository.findByParentId(parent.getId());
         if (children.isEmpty()) {
             throw new ApiException(ErrorCode.CHILDREN_NOT_EXIST);
         }
@@ -77,8 +78,9 @@ public class ChildManagerService {
         return child.getId();
     }
 
-    public int checkChildCreationLimit(Long parentId) {
-        List<Child> children = childRepository.findByParentId(parentId);
+    public int checkChildCreationLimit(String accessToken) {
+        Parent parent = parentService.getAccountByToken(accessToken);
+        List<Child> children = childRepository.findByParentId(parent.getId());
         if (children.size() >= 3) {
             throw new ApiException(ErrorCode.CHILD_CREATION_LIMIT_REACHED);
         }
