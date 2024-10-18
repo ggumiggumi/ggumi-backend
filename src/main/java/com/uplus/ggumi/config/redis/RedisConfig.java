@@ -27,6 +27,7 @@ public class RedisConfig {
      * Redis 데이터 처리를 위한 템플릿 구성
      * 해당 구성된 RedisTemplate 를 통해서 데이터 통신으로 처리되는 직렬화 수행
      * */
+    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 

@@ -35,7 +35,7 @@ public class Child extends BaseTimeEntity {
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="parent_id")
     private Parent parent;
 
