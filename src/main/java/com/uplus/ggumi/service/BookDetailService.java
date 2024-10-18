@@ -53,17 +53,18 @@ public class BookDetailService implements BookDetailRepository {
         return redisTemplate.opsForSet().size(LIKE + key.toString());
     }
 
-    public Long calculateChildScoreWithBookScore(Long bookId, Long childId) {
+    /* 싫어요, 미선택 -> 좋아요를 눌렀던 시점의 점수 계산 */
+    public Long calculateChildScoreWithBookScoreWhenClickLike(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
         Book book = bookRepository.findBookById(bookId);
         History history = historyRepository.findTopByChildIdOrderByCreatedAtDesc(childId);
 
         /* 점수 계산 */
-        double newChildEIScore = getNewChildScore(history.getEI(), book.getEI());
-        double newChildSNScore = getNewChildScore(history.getSN(), book.getSN());
-        double newChildFTScore = getNewChildScore(history.getFT(), book.getFT());
-        double newChildPJScore = getNewChildScore(history.getPJ(), book.getPJ());
+        double newChildEIScore = getNewChildScoreWhenClickLike(history.getEI(), book.getEI());
+        double newChildSNScore = getNewChildScoreWhenClickLike(history.getSN(), book.getSN());
+        double newChildFTScore = getNewChildScoreWhenClickLike(history.getFT(), book.getFT());
+        double newChildPJScore = getNewChildScoreWhenClickLike(history.getPJ(), book.getPJ());
 
         /* 새로 추가할 히스토리 로그 정보 생성 */
         History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
@@ -73,8 +74,36 @@ public class BookDetailService implements BookDetailRepository {
         return newHistory.getId();
     }
 
-    private double getNewChildScore(double child, double book) {
+    /* 좋아요 -> 싫어요, 미선택을 눌렀던 시점의 점수 계산 */
+    public Long calculateChildScoreWithBookScoreWhenClickHate(Long bookId, Long childId) {
+
+        /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
+        Book book = bookRepository.findBookById(bookId);
+        History history = historyRepository.findTopByChildIdOrderByCreatedAtDesc(childId);
+
+        /* 점수 계산 */
+        double newChildEIScore = getNewChildScoreWhenClickHate(history.getEI(), book.getEI());
+        double newChildSNScore = getNewChildScoreWhenClickHate(history.getSN(), book.getSN());
+        double newChildFTScore = getNewChildScoreWhenClickHate(history.getFT(), book.getFT());
+        double newChildPJScore = getNewChildScoreWhenClickHate(history.getPJ(), book.getPJ());
+
+        log.info("CHILD EI SCORE : {}" , history.getEI());
+
+        /* 새로 추가할 히스토리 로그 정보 생성 */
+        History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
+
+        historyRepository.save(newHistory);
+
+        return newHistory.getId();
+    }
+
+    private double getNewChildScoreWhenClickLike(double child, double book) {
         return child + (LEARNING_RATE * (book - child));
+    }
+
+    private double getNewChildScoreWhenClickHate(double child, double book) {
+        log.info("CHILD SCORE : {}, BOOK SCORE : {}", child, book);
+        return child + (LEARNING_RATE * (child - book));
     }
 
 }
