@@ -35,4 +35,14 @@ public class History extends BaseTimeEntity {
 	@JoinColumn(name = "child_id")
 	private Child child;
 
+	public History(double EI, double SN, double FT, double PJ, Child child) {
+		super();
+		this.EI = EI;
+		this.SN = SN;
+		this.FT = FT;
+		this.PJ = PJ;
+		this.deletedAt = null;
+		this.isDeleted = false;
+		this.child = child;
+	}
 }
