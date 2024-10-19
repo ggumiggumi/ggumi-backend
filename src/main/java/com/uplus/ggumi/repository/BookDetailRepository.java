@@ -11,6 +11,4 @@ public interface BookDetailRepository {
 
     Long undoFeedback(Long key, Long value);
 
-    Long getTotalLikes(Long key);
-
 }

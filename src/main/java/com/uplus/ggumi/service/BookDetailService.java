@@ -1,9 +1,13 @@
 package com.uplus.ggumi.service;
 
 import com.uplus.ggumi.domain.book.Book;
+import com.uplus.ggumi.domain.feedback.Feedback;
+import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.history.History;
+import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
 import com.uplus.ggumi.repository.BookDetailRepository;
 import com.uplus.ggumi.repository.BookRepository;
+import com.uplus.ggumi.repository.FeedbackRepository;
 import com.uplus.ggumi.repository.HistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,23 @@ public class BookDetailService implements BookDetailRepository {
 
     private final BookRepository bookRepository;
     private final HistoryRepository historyRepository;
+    private final FeedbackRepository feedbackRepository;
+
+    /* 도서 상세 페이지 내용을 보내기 위함 */
+    public BookDetailResponseDto getBookDetail(Long bookId, Long childId) {
+        Book book = bookRepository.findBookById(bookId);
+        Feedback feedback = feedbackRepository.findByChildId(childId);
+
+        return BookDetailResponseDto.builder()
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .content(book.getContent())
+                .bookImage(book.getBook_image())
+                .createdAt(book.getCreatedAt())
+                .publisher(book.getPublisher())
+                .feedback(feedback.getThumbs())
+                .build();
+    }
 
     @Override
     public Long setLike(Long key, Long value) {
@@ -47,13 +68,8 @@ public class BookDetailService implements BookDetailRepository {
         redisTemplate.opsForSet().remove(HATE + key.toString(), value.toString());
         return redisTemplate.opsForSet().remove(LIKE + key, value.toString());
     }
-
-    @Override
-    public Long getTotalLikes(Long key) {
-        return redisTemplate.opsForSet().size(LIKE + key.toString());
-    }
-
     /* 싫어요, 미선택 -> 좋아요를 눌렀던 시점의 점수 계산 */
+
     public Long calculateChildScoreWithBookScoreWhenClickLike(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
@@ -73,8 +89,8 @@ public class BookDetailService implements BookDetailRepository {
 
         return newHistory.getId();
     }
-
     /* 좋아요 -> 싫어요, 미선택을 눌렀던 시점의 점수 계산 */
+
     public Long calculateChildScoreWithBookScoreWhenClickHate(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
@@ -87,7 +103,7 @@ public class BookDetailService implements BookDetailRepository {
         double newChildFTScore = getNewChildScoreWhenClickHate(history.getFT(), book.getFT());
         double newChildPJScore = getNewChildScoreWhenClickHate(history.getPJ(), book.getPJ());
 
-        log.info("CHILD EI SCORE : {}" , history.getEI());
+        log.info("CHILD EI SCORE : {}", history.getEI());
 
         /* 새로 추가할 히스토리 로그 정보 생성 */
         History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
@@ -105,5 +121,4 @@ public class BookDetailService implements BookDetailRepository {
         log.info("CHILD SCORE : {}, BOOK SCORE : {}", child, book);
         return child + (LEARNING_RATE * (child - book));
     }
-
 }
