@@ -31,4 +31,8 @@ public class Feedback {
 	@JoinColumn(name = "book_id")
 	private Book book;
 
+	/* 피드백 상태 변경을 위한 메서드 */
+	public void updateThumbs(Thumbs thumbs) {
+		this.thumbs = thumbs;
+	}
 }

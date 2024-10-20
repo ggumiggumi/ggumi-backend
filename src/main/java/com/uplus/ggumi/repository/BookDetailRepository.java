@@ -1,8 +1,8 @@
 package com.uplus.ggumi.repository;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
-@Service
+@Repository
 public interface BookDetailRepository {
 
     Long setLike(Long key, Long value);

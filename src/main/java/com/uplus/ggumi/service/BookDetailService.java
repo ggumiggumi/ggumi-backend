@@ -2,7 +2,6 @@ package com.uplus.ggumi.service;
 
 import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.domain.feedback.Feedback;
-import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.history.History;
 import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
 import com.uplus.ggumi.repository.BookDetailRepository;
@@ -68,8 +67,8 @@ public class BookDetailService implements BookDetailRepository {
         redisTemplate.opsForSet().remove(HATE + key.toString(), value.toString());
         return redisTemplate.opsForSet().remove(LIKE + key, value.toString());
     }
-    /* 싫어요, 미선택 -> 좋아요를 눌렀던 시점의 점수 계산 */
 
+    /* 싫어요, 미선택 -> 좋아요를 눌렀던 시점의 점수 계산 및 기록 저장 */
     public Long calculateChildScoreWithBookScoreWhenClickLike(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
@@ -89,8 +88,8 @@ public class BookDetailService implements BookDetailRepository {
 
         return newHistory.getId();
     }
-    /* 좋아요 -> 싫어요, 미선택을 눌렀던 시점의 점수 계산 */
 
+    /* 좋아요 -> 싫어요, 미선택을 눌렀던 시점의 점수 계산 및 기록 저장 */
     public Long calculateChildScoreWithBookScoreWhenClickHate(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
@@ -103,8 +102,6 @@ public class BookDetailService implements BookDetailRepository {
         double newChildFTScore = getNewChildScoreWhenClickHate(history.getFT(), book.getFT());
         double newChildPJScore = getNewChildScoreWhenClickHate(history.getPJ(), book.getPJ());
 
-        log.info("CHILD EI SCORE : {}", history.getEI());
-
         /* 새로 추가할 히스토리 로그 정보 생성 */
         History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
 
@@ -113,12 +110,16 @@ public class BookDetailService implements BookDetailRepository {
         return newHistory.getId();
     }
 
+    /* 싫어요, 미선택 -> 좋아요를 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickLike(double child, double book) {
         return child + (LEARNING_RATE * (book - child));
     }
 
+    /* 좋아요 -> 싫어요, 미선택을 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickHate(double child, double book) {
         log.info("CHILD SCORE : {}, BOOK SCORE : {}", child, book);
         return child + (LEARNING_RATE * (child - book));
     }
+
+
 }
