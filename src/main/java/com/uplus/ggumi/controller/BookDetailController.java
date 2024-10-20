@@ -2,7 +2,9 @@ package com.uplus.ggumi.controller;
 
 import com.uplus.ggumi.config.response.ResponseDto;
 import com.uplus.ggumi.config.response.ResponseUtil;
+import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
 import com.uplus.ggumi.service.BookDetailService;
+import com.uplus.ggumi.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +18,11 @@ import java.util.Map;
 public class BookDetailController {
 
     private final BookDetailService bookDetailService;
+    private final FeedbackService feedbackService;
 
-    @GetMapping("/{bookId}/total-likes")
-    public ResponseDto<Long> totalLikes(@PathVariable Long bookId) {
-        return ResponseUtil.SUCCESS("총 좋아요 개수를 가져왔습니다.", bookDetailService.getTotalLikes(bookId));
+    @PostMapping("/{bookId}")
+    public ResponseDto<BookDetailResponseDto> getBookDetail(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
+        return ResponseUtil.SUCCESS("책 정보를 성공적으로 가져왔습니다.", bookDetailService.getBookDetail(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/like")
@@ -47,4 +50,8 @@ public class BookDetailController {
         return ResponseUtil.SUCCESS("책의 점수를 기반으로 점수를 계산합니다.", bookDetailService.calculateChildScoreWithBookScoreWhenClickHate(bookId, request.get("childId")));
     }
 
+    @PostMapping("/{bookId}/feedback")
+    public ResponseDto<Long> updateFeedback(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
+        return ResponseUtil.SUCCESS("피드백 정보를 저장했습니다.", feedbackService.saveFeedbackStatus(bookId, request.get("childId")));
+    }
 }
