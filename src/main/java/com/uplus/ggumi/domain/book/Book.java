@@ -35,6 +35,7 @@ public class Book extends BaseTimeEntity {
 	private String title;
 	private String author;
 	private String publisher;
+	private int likes;
 	private int recommend_age;
 
 	@Builder.Default
