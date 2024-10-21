@@ -1,13 +1,14 @@
 package com.uplus.ggumi.service;
 
+import com.uplus.ggumi.config.exception.ApiException;
+import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.book.Book;
+import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.feedback.Feedback;
+import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.history.History;
 import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
-import com.uplus.ggumi.repository.BookDetailRepository;
-import com.uplus.ggumi.repository.BookRepository;
-import com.uplus.ggumi.repository.FeedbackRepository;
-import com.uplus.ggumi.repository.HistoryRepository;
+import com.uplus.ggumi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,12 +28,24 @@ public class BookDetailService implements BookDetailRepository {
 
     private final BookRepository bookRepository;
     private final HistoryRepository historyRepository;
+    private final ChildRepository childRepository;
     private final FeedbackRepository feedbackRepository;
 
     /* 도서 상세 페이지 내용을 보내기 위함 */
     public BookDetailResponseDto getBookDetail(Long bookId, Long childId) {
         Book book = bookRepository.findBookById(bookId);
-        Feedback feedback = feedbackRepository.findByChildId(childId);
+        Child child = childRepository.findById(childId).orElseThrow(() -> new ApiException(ErrorCode.CHILD_NOT_EXIST));
+
+        /* 자녀가 해당 도서를 처음 방문했을 경우 새로운 피드백을 생성해준다. */
+        Feedback feedback = feedbackRepository.findByChildId(childId).orElseGet(() -> {
+            Feedback newFeedback = Feedback.builder()
+                    .child(child)
+                    .book(book)
+                    .thumbs(Thumbs.UNCHECKED)
+                    .build();
+            feedbackRepository.save(newFeedback);
+            return newFeedback;
+        });
 
         return BookDetailResponseDto.builder()
                 .title(book.getTitle())
