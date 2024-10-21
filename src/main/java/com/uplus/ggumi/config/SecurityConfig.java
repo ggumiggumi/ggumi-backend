@@ -1,5 +1,6 @@
 package com.uplus.ggumi.config;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
@@ -40,10 +41,10 @@ public class SecurityConfig {
 				@Override
 				public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 					CorsConfiguration config = new CorsConfiguration();
-					config.setAllowedOrigins(Collections.singletonList("*")); //테스트를 위해 일단 전체 허용
-					config.setAllowedMethods(Collections.singletonList("*"));
-					config.setAllowCredentials(true);
+					config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+					config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 					config.setAllowedHeaders(Collections.singletonList("*"));
+					config.setAllowCredentials(true);
 					config.setMaxAge(3600L);
 					return config;
 				}
