@@ -21,4 +21,5 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
             "GROUP BY FUNCTION('YEAR', h.createdAt), FUNCTION('WEEK', h.createdAt) " +
             "HAVING h.createdAt = MAX(h.createdAt) " +
             "ORDER BY h.createdAt DESC")
-    List<History> findByChildIdLatestHistoryByWeek(@Param("childId") Long childId);}
+    List<History> findByChildIdLatestHistoryByWeek(@Param("childId") Long childId);
+}
