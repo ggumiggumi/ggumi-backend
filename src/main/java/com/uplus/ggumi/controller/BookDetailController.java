@@ -45,8 +45,6 @@ public class BookDetailController {
         return ResponseUtil.SUCCESS("싫어요를 취소했습니다.", bookDetailService.undoHate(bookId, request.get("childId")));
     }
 
-
-
     @PostMapping("/{bookId}/calculation-like")
     public ResponseDto<Long> calculationWhenClickLike(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
         return ResponseUtil.SUCCESS("책의 점수를 기반으로 점수를 계산합니다.", bookDetailService.calculateChildScoreWithBookScoreWhenClickLike(bookId, request.get("childId")));

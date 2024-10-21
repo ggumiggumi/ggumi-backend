@@ -7,6 +7,7 @@ import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.feedback.Feedback;
 import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.history.History;
+import com.uplus.ggumi.domain.recommend.Recommend;
 import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
 import com.uplus.ggumi.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -21,9 +25,15 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class BookDetailService implements BookDetailRepository {
 
+    /* 추천 도서 지정 개수 */
+    public static final int RECOMMEND_BOOK_COUNT = 8;
+    /* 총 좋아요 개수 Key 값 */
     private static final String TOTAL_LIKES = "totalLikes:";
+    /* 좋아요 Key 값 */
     private static final String LIKE = "like:";
+    /* 싫어요 Key 값 */
     private static final String HATE = "hate:";
+    /* 학습률 */
     private static final Double LEARNING_RATE = 0.15;
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -32,6 +42,7 @@ public class BookDetailService implements BookDetailRepository {
     private final HistoryRepository historyRepository;
     private final ChildRepository childRepository;
     private final FeedbackRepository feedbackRepository;
+    private final RecommendRepository recommendRepository;
 
     /* 도서 상세 페이지 내용을 보내기 위함 */
     public BookDetailResponseDto getBookDetail(Long bookId, Long childId) {
@@ -39,7 +50,7 @@ public class BookDetailService implements BookDetailRepository {
         Child child = childRepository.findById(childId).orElseThrow(() -> new ApiException(ErrorCode.CHILD_NOT_EXIST));
 
         /* 자녀가 해당 도서를 처음 방문했을 경우 새로운 피드백을 생성해준다. */
-        Feedback feedback = feedbackRepository.findByChildId(childId).orElseGet(() -> {
+        Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId).orElseGet(() -> {
             Feedback newFeedback = Feedback.builder()
                     .child(child)
                     .book(book)
@@ -131,8 +142,14 @@ public class BookDetailService implements BookDetailRepository {
         History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
 
         historyRepository.save(newHistory);
+        updateRecommendBooks(newHistory);
 
         return newHistory.getId();
+    }
+
+    /* 싫어요, 미선택 -> 좋아요를 눌렀을 때의 알고리즘 */
+    private double getNewChildScoreWhenClickLike(double child, double book) {
+        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (book - child))));
     }
 
     /* 좋아요 -> 싫어요, 미선택을 눌렀던 시점의 점수 계산 및 기록 저장 */
@@ -152,13 +169,9 @@ public class BookDetailService implements BookDetailRepository {
         History newHistory = new History(newChildEIScore, newChildSNScore, newChildFTScore, newChildPJScore, history.getChild());
 
         historyRepository.save(newHistory);
+        updateRecommendBooks(newHistory);
 
         return newHistory.getId();
-    }
-
-    /* 싫어요, 미선택 -> 좋아요를 눌렀을 때의 알고리즘 */
-    private double getNewChildScoreWhenClickLike(double child, double book) {
-        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (book - child))));
     }
 
     /* 좋아요 -> 싫어요, 미선택을 눌렀을 때의 알고리즘 */
@@ -166,5 +179,36 @@ public class BookDetailService implements BookDetailRepository {
         return Math.max(0, Math.min(1, child + (LEARNING_RATE * (child - book))));
     }
 
+    /* 자녀 성향 점수가 변하는 시점에 추천 도서 목록을 업데이트 하는 메서드 */
+    private void updateRecommendBooks(History history) {
+        List<Book> books = bookRepository.findAll();
 
+        Map<Book, Double> map = new HashMap<>();
+        for (Book book : books) {
+            map.put(book, Math.abs(history.getEI() - book.getEI()) + Math.abs(history.getSN() - book.getSN()) + Math.abs(history.getPJ() - book.getPJ()) + Math.abs(history.getFT() - book.getFT()));
+        }
+
+        /* Stream API를 사용해 값(Value) 기준으로 오름차순 정렬한 후 Key 값만 리스트로 수집 */
+        List<Book> sortedKeys = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())  // Value 기준으로 정렬
+                .map(Map.Entry::getKey)                // Key 값만 추출
+                .toList();                             // 리스트로 수집
+
+        /* 새롭게 업데이트 한 책들을 넣기 전에 해당 테이블의 책들을 비워준다. */
+        recommendRepository.deleteAll();
+
+        /* 상위 RECOMMEND_BOOK_COUNT 권의 책만 추천 테이블에 넣어준다. */
+        int count = 0;
+        for (Book recommendBook : sortedKeys) {
+            if (count == RECOMMEND_BOOK_COUNT) {
+                return;
+            }
+            recommendRepository.save(Recommend.builder()
+                    .book(recommendBook)
+                    .child(history.getChild())
+                    .build());
+            count++;
+        }
+    }
 }
