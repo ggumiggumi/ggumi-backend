@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: AWS login and docker image pull and run
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
