@@ -1,13 +1,14 @@
 package com.uplus.ggumi.service;
 
+import com.uplus.ggumi.config.exception.ApiException;
+import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.book.Book;
+import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.feedback.Feedback;
+import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.history.History;
 import com.uplus.ggumi.dto.bookDetail.BookDetailResponseDto;
-import com.uplus.ggumi.repository.BookDetailRepository;
-import com.uplus.ggumi.repository.BookRepository;
-import com.uplus.ggumi.repository.FeedbackRepository;
-import com.uplus.ggumi.repository.HistoryRepository;
+import com.uplus.ggumi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,12 +28,30 @@ public class BookDetailService implements BookDetailRepository {
 
     private final BookRepository bookRepository;
     private final HistoryRepository historyRepository;
+    private final ChildRepository childRepository;
     private final FeedbackRepository feedbackRepository;
 
     /* 도서 상세 페이지 내용을 보내기 위함 */
     public BookDetailResponseDto getBookDetail(Long bookId, Long childId) {
         Book book = bookRepository.findBookById(bookId);
-        Feedback feedback = feedbackRepository.findByChildId(childId);
+        Child child = childRepository.findById(childId).orElseThrow(() -> new ApiException(ErrorCode.CHILD_NOT_EXIST));
+
+        /* 자녀가 해당 도서를 처음 방문했을 경우 새로운 피드백을 생성해준다. */
+        Feedback feedback = feedbackRepository.findByChildId(childId).orElseGet(() -> {
+            Feedback newFeedback = Feedback.builder()
+                    .child(child)
+                    .book(book)
+                    .thumbs(Thumbs.UNCHECKED)
+                    .build();
+            feedbackRepository.save(newFeedback);
+            return newFeedback;
+        });
+
+        if (feedback.getThumbs().equals(Thumbs.UP)) {
+            redisTemplate.opsForSet().add(LIKE + bookId, childId.toString());
+        } else if (feedback.getThumbs().equals(Thumbs.DOWN)) {
+            redisTemplate.opsForSet().add(HATE + bookId, childId.toString());
+        }
 
         return BookDetailResponseDto.builder()
                 .title(book.getTitle())
@@ -112,13 +131,12 @@ public class BookDetailService implements BookDetailRepository {
 
     /* 싫어요, 미선택 -> 좋아요를 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickLike(double child, double book) {
-        return child + (LEARNING_RATE * (book - child));
+        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (book - child))));
     }
 
     /* 좋아요 -> 싫어요, 미선택을 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickHate(double child, double book) {
-        log.info("CHILD SCORE : {}, BOOK SCORE : {}", child, book);
-        return child + (LEARNING_RATE * (child - book));
+        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (child - book))));
     }
 
 

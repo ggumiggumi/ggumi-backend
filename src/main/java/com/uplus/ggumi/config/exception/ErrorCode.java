@@ -30,7 +30,9 @@ public enum ErrorCode {
 	CHILDREN_NOT_EXIST(500, "자녀 리스트가 없습니다.", 1202 ),
 	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203 ),
 
-	HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1301);
+	HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1301),
+
+	FEEDBACK_NOT_EXIST(500, "해당하는 피드백 정보가 없습니다.", 1401);
 
 
 	private final int status;
