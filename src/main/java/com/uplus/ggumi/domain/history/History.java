@@ -6,12 +6,7 @@ import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.global.BaseTimeEntity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,8 +31,18 @@ public class History extends BaseTimeEntity {
 	private LocalDateTime deletedAt;
 	private boolean isDeleted;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "child_id")
 	private Child child;
 
+	public History(double EI, double SN, double FT, double PJ, Child child) {
+		super();
+		this.EI = EI;
+		this.SN = SN;
+		this.FT = FT;
+		this.PJ = PJ;
+		this.deletedAt = null;
+		this.isDeleted = false;
+		this.child = child;
+	}
 }

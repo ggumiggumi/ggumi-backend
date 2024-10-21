@@ -7,11 +7,7 @@ import com.uplus.ggumi.domain.book_tag.BookTag;
 import com.uplus.ggumi.domain.feedback.Feedback;
 import com.uplus.ggumi.domain.global.BaseTimeEntity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +23,15 @@ public class Book extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	private double EI;
+	private double SN;
+	private double FT;
+	private double PJ;
+
+	@Lob
+	private String content;
+
+	private String book_image;
 	private String title;
 	private String author;
 	private String publisher;
