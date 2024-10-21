@@ -15,18 +15,17 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookDetailService implements BookDetailRepository {
 
-    public static final int TTL = 1;
     private static final String TOTAL_LIKES = "totalLikes:";
     private static final String LIKE = "like:";
     private static final String HATE = "hate:";
     private static final Double LEARNING_RATE = 0.15;
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     private final BookRepository bookRepository;
@@ -76,7 +75,7 @@ public class BookDetailService implements BookDetailRepository {
             return Integer.parseInt(cachedLikes.toString());
         }
 
-        redisTemplate.opsForValue().set(TOTAL_LIKES + bookId, String.valueOf(book.getLikes()), TTL, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(TOTAL_LIKES + bookId, String.valueOf(book.getLikes()));
 
         return book.getLikes();
     }
