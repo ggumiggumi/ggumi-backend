@@ -47,6 +47,12 @@ public class BookDetailService implements BookDetailRepository {
             return newFeedback;
         });
 
+        if (feedback.getThumbs().equals(Thumbs.UP)) {
+            redisTemplate.opsForSet().add(LIKE + bookId, childId.toString());
+        } else if (feedback.getThumbs().equals(Thumbs.DOWN)) {
+            redisTemplate.opsForSet().add(HATE + bookId, childId.toString());
+        }
+
         return BookDetailResponseDto.builder()
                 .title(book.getTitle())
                 .author(book.getAuthor())
@@ -125,13 +131,12 @@ public class BookDetailService implements BookDetailRepository {
 
     /* 싫어요, 미선택 -> 좋아요를 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickLike(double child, double book) {
-        return child + (LEARNING_RATE * (book - child));
+        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (book - child))));
     }
 
     /* 좋아요 -> 싫어요, 미선택을 눌렀을 때의 알고리즘 */
     private double getNewChildScoreWhenClickHate(double child, double book) {
-        log.info("CHILD SCORE : {}, BOOK SCORE : {}", child, book);
-        return child + (LEARNING_RATE * (child - book));
+        return Math.max(0, Math.min(1, child + (LEARNING_RATE * (child - book))));
     }
 
 

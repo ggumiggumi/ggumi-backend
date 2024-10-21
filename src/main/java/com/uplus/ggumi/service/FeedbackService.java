@@ -32,8 +32,10 @@ public class FeedbackService {
 
         if (Boolean.TRUE.equals(isLiked)) {
             feedback.updateThumbs(Thumbs.UP);
+            redisTemplate.opsForSet().remove(LIKE + bookId, childId.toString());
         } else if (Boolean.TRUE.equals(isHated)) {
             feedback.updateThumbs(Thumbs.DOWN);
+            redisTemplate.opsForSet().remove(HATE + bookId, childId.toString());
         } else {
             feedback.updateThumbs(Thumbs.UNCHECKED);
         }
