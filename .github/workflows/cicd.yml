@@ -45,13 +45,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: NCP login and docker image pull and run
+      - name: AWS login and docker image pull and run
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }} 
-          port: ${{ secrets.EC2_PORT }}
+          username: ec2-user
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
