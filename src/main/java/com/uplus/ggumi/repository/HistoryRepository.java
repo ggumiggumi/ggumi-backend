@@ -22,4 +22,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 		"HAVING h.createdAt = MAX(h.createdAt) " +
 		"ORDER BY h.createdAt DESC")
 	List<History> findByChildIdLatestHistoryByWeek(@Param("childId") Long childId);
+
 }
+

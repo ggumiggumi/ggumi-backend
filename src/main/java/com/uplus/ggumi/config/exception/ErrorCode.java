@@ -28,8 +28,11 @@ public enum ErrorCode {
 	PARENT_NOT_EXIST(500, "부모 정보 찾기를 실패하였습니다", 1200),
 	CHILD_NOT_EXIST(500, "자녀 정보 찾기를 실패하를습니다.", 1201),
 	CHILDREN_NOT_EXIST(500, "자녀 리스트가 없습니다.", 1202 ),
-	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203 );
+	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203 ),
 
+	HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1301),
+
+	FEEDBACK_NOT_EXIST(500, "해당하는 피드백 정보가 없습니다.", 1401);
 
 
 	private final int status;

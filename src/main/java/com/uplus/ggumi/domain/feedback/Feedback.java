@@ -3,14 +3,7 @@ package com.uplus.ggumi.domain.feedback;
 import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.domain.child.Child;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,12 +23,16 @@ public class Feedback {
 	@Enumerated(EnumType.STRING)
 	private Thumbs thumbs;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "child_id")
 	private Child child;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "book_id")
 	private Book book;
 
+	/* 피드백 상태 변경을 위한 메서드 */
+	public void updateThumbs(Thumbs thumbs) {
+		this.thumbs = thumbs;
+	}
 }
