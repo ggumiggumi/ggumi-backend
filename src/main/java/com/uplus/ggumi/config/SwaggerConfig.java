@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @OpenAPIDefinition(
 	servers = {
-		@Server(url = "http://13.125.110.207", description = "배포 서버"),
+		@Server(url = "http://13.125.110.207:8080", description = "배포 서버"),
 		@Server(url = "http://localhost:8080", description = "로컬 서버")
 	}
 )
