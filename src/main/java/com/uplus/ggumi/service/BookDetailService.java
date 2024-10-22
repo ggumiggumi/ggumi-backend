@@ -185,7 +185,11 @@ public class BookDetailService implements BookDetailRepository {
 
         Map<Book, Double> map = new HashMap<>();
         for (Book book : books) {
-            map.put(book, Math.abs(history.getEI() - book.getEI()) + Math.abs(history.getSN() - book.getSN()) + Math.abs(history.getPJ() - book.getPJ()) + Math.abs(history.getFT() - book.getFT()));
+            map.put(book,
+                    Math.abs(history.getEI() - book.getEI())
+                            + Math.abs(history.getSN() - book.getSN())
+                            + Math.abs(history.getPJ() - book.getPJ())
+                            + Math.abs(history.getFT() - book.getFT()));
         }
 
         /* Stream API를 사용해 값(Value) 기준으로 오름차순 정렬한 후 Key 값만 리스트로 수집 */
