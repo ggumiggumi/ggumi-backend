@@ -20,6 +20,7 @@ public class BookDetailResponseDto {
     private String bookImage;
     private String content;
     private LocalDateTime createdAt;
+    private int likes;
     private Thumbs feedback;
 
 }

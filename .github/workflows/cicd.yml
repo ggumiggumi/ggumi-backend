@@ -46,11 +46,12 @@ jobs:
 
     steps:
       - name: AWS login and docker image pull and run
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           envs: GITHUB_SHA
           script: |
             sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}

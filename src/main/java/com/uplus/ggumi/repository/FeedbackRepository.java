@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
-    Optional<Feedback> findByChildId(Long childId);
+    Optional<Feedback> findByBookIdAndChildId(Long bookId, Long childId);
 
 }

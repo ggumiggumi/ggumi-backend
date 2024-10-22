@@ -24,7 +24,7 @@ public class FeedbackService {
     /* 페이지를 벗어나는 시점 (다른 페이지 이동, 뒤로가기, 새로고침)에 피드백 정보 RDB 영구 저장 */
     public Long saveFeedbackStatus(Long bookId, Long childId) {
 
-        Feedback feedback = feedbackRepository.findByChildId(childId)
+        Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId)
                 .orElseThrow(() -> new ApiException(ErrorCode.FEEDBACK_NOT_EXIST));
 
         Boolean isLiked = redisTemplate.opsForSet().isMember(LIKE + bookId, childId.toString());
