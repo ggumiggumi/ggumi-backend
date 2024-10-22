@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class BookService {
 
+    public static final int PAGE_SIZE = 4;
+
     private final BookRepository bookRepository;
     private final RecommendRepository recommendRepository;
     private final HistoryRepository historyRepository;
@@ -42,7 +44,7 @@ public class BookService {
 
     /* 메인 페이지에서 MBTI 검사 여부에 따른 추천 도서 또는 최근 도서 페이징 조회 */
     public MainBookResponseDto getBooks(Long childId, int page) {
-        Pageable pageable = PageRequest.of(page, 8);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
         boolean hasHistory = historyRepository.existsByChildId(childId);
 
