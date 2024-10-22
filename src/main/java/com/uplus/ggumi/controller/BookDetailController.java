@@ -35,9 +35,14 @@ public class BookDetailController {
         return ResponseUtil.SUCCESS("싫어요를 눌렀습니다.", bookDetailService.setHate(bookId, request.get("childId")));
     }
 
-    @PostMapping("/{bookId}/undo")
-    public ResponseDto<Long> undoFeedback(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("피드백을 취소했습니다.", bookDetailService.undoFeedback(bookId, request.get("childId")));
+    @PostMapping("/{bookId}/undo-like")
+    public ResponseDto<Long> undoLike(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
+        return ResponseUtil.SUCCESS("좋아요를 취소했습니다.", bookDetailService.undoLike(bookId, request.get("childId")));
+    }
+
+    @PostMapping("/{bookId}/undo-hate")
+    public ResponseDto<Long> undoHate(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
+        return ResponseUtil.SUCCESS("싫어요를 취소했습니다.", bookDetailService.undoHate(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/calculation-like")

@@ -9,6 +9,4 @@ public interface BookDetailRepository {
 
     Long setHate(Long key, Long value);
 
-    Long undoFeedback(Long key, Long value);
-
 }
