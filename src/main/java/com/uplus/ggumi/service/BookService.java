@@ -69,6 +69,7 @@ public class BookService {
                 .books(bookPage.getContent())
                 .number(bookPage.getNumber())
                 .size(bookPage.getSize())
+                .totalPages(bookPage.getTotalPages())
                 .build();
     }
 
@@ -89,6 +90,7 @@ public class BookService {
                 .books(bookPage.getContent())
                 .number(bookPage.getNumber())
                 .size(bookPage.getSize())
+                .totalPages(bookPage.getTotalPages())
                 .build();
     }
 }

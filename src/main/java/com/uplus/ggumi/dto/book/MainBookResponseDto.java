@@ -12,6 +12,7 @@ public class MainBookResponseDto {
     List<BookDto> books;
     private int number;
     private int size;
+    private int totalPages;
 
     @Getter
     @Builder
