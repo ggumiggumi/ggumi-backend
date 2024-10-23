@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdTokenDto {
-	private String idToken;
+public class KakaoAccessTokenDto {
+	private String kakaoAccessToken;
 }
