@@ -71,4 +71,24 @@ public class BookService {
                 .size(bookPage.getSize())
                 .build();
     }
+
+    /* 좋아요 수 기준으로 정렬된 리스트 가져오는 메서드*/
+    public MainBookResponseDto getPopularBooks(int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+        Page<BookDto> bookPage;
+
+        bookPage = bookRepository.findAllByOrderByLikesDesc(pageable)
+                .map(book-> BookDto.builder()
+                        .id(book.getId())
+                        .title(book.getTitle())
+                        .book_image(book.getBook_image())
+                        .build());
+
+        return MainBookResponseDto.builder()
+                .books(bookPage.getContent())
+                .number(bookPage.getNumber())
+                .size(bookPage.getSize())
+                .build();
+    }
 }
