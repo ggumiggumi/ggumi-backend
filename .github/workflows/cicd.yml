@@ -62,6 +62,6 @@ jobs:
             echo "모든 Docker 컨테이너 강제로 삭제"
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             echo "docker pull 성공"
-            sudo docker run -d -p 443:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
+            sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             sudo docker image prune -f
             echo "사용하지 않는 Docker image 정리"
