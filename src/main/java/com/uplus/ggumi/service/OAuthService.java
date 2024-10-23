@@ -32,14 +32,13 @@ public class OAuthService {
 	private final ParentRepository parentRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 
-	public TokenInfoDto kakaoOAuthLogin(String idToken) {
-		HashMap<String, Object> kakaoUserInfo = kakaoSocialService.getKakaoUserInfo(idToken);
+	public TokenInfoDto kakaoOAuthLogin(String kakaoAccessToken) {
+		HashMap<String, Object> kakaoUserInfo = kakaoSocialService.getKakaoUserInfo(kakaoAccessToken);
 		String email = kakaoUserInfo.get("email").toString();
 		Provider provider = Provider.KAKAO;
 
 		if (parentRepository.notExistsAccountByEmailAndProvider(email, provider)) {
 			saveAccount(kakaoUserInfo, email);
-			return null;
 		}
 		return jwtTokenProvider.generateToken(getAuthentication(email, String.valueOf(provider)));
 	}
