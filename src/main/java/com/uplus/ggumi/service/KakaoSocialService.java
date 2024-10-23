@@ -41,14 +41,6 @@ public class KakaoSocialService {
 		HttpURLConnection kakaoServerConnection = (HttpURLConnection)url.openConnection();
 		kakaoServerConnection.setRequestMethod("GET");
 		kakaoServerConnection.setRequestProperty("Authorization", "Bearer " + kakaoAccessToken);
-		// kakaoServerConnection.setDoOutput(true);
-		//
-		// try (BufferedWriter bw = new BufferedWriter(
-		// 	new OutputStreamWriter(kakaoServerConnection.getOutputStream(), "UTF-8"))) {
-		// 	String requestBody = "id_token=" + kakaoAccessToken;
-		// 	bw.write(requestBody);
-		// 	bw.flush();
-		// }
 		return kakaoServerConnection;
 	}
 
