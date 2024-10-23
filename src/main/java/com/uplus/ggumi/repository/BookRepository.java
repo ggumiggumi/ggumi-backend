@@ -26,7 +26,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b ORDER BY b.createdAt DESC ")
     Page<Book> findLatestBooks(Pageable pageable);
 
-    @Query("SELECT b FROM Book b ORDER BY b.likes DESC")
     Page<Book> findAllByOrderByLikesDesc(Pageable pageable);
 
 }
