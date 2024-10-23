@@ -22,4 +22,9 @@ public class MainController {
     public ResponseDto<MainBookResponseDto> getBooks(@RequestParam int page, @RequestBody Map<String, Long> request) {
         return ResponseUtil.SUCCESS("책 정보들을 성공적으로 가져왔습니다.", bookService.getBooks(request.get("childId"), page));
     }
+
+    @PostMapping("/popularity")
+    public ResponseDto<MainBookResponseDto> getPopularBooks(@RequestParam int page) {
+            return ResponseUtil.SUCCESS("인기있는 책 리스트",bookService.getPopularBooks(page));
+    }
 }
