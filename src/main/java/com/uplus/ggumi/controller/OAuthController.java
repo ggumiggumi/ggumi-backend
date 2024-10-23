@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uplus.ggumi.config.response.ResponseDto;
 import com.uplus.ggumi.config.response.ResponseUtil;
-import com.uplus.ggumi.dto.token.IdTokenDto;
+import com.uplus.ggumi.dto.token.KakaoAccessTokenDto;
 import com.uplus.ggumi.dto.token.RefreshTokenDto;
 import com.uplus.ggumi.dto.token.TokenInfoDto;
 import com.uplus.ggumi.service.OAuthService;
@@ -28,8 +28,8 @@ public class OAuthController {
 
 	@Operation(summary = "카카오 소셜로그인")
 	@PostMapping("/kakao")
-	public ResponseDto<TokenInfoDto> kakaoLogin(@RequestBody IdTokenDto idTokenDto) {
-		return ResponseUtil.SUCCESS("카카오 로그인에 성공하였습니다.", oAuthService.kakaoOAuthLogin(idTokenDto.getIdToken()));
+	public ResponseDto<TokenInfoDto> kakaoLogin(@RequestBody KakaoAccessTokenDto kakaoAccessTokenDto) {
+		return ResponseUtil.SUCCESS("카카오 로그인에 성공하였습니다.", oAuthService.kakaoOAuthLogin(kakaoAccessTokenDto.getKakaoAccessToken()));
 	}
 
 	@Operation(summary = "토큰 재발급", description = "리프레시 토큰 앞에 토큰 타입 'Bearer ' 필요")
