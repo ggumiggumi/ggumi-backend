@@ -49,11 +49,11 @@ public class S3Service {
 	}
 
 	/** 이미지 파일 갱신 **/
-	public String updateFile(String existingFileName, MultipartFile newImage) {
+	public String updateFile(String imageFileUrl, MultipartFile newImage) {
 		try {
 
 			// 파일명 찾기
-			String fileName = existingFileName.substring(existingFileName.lastIndexOf('/') + 1);
+			String fileName = getFileNameFromUrl(imageFileUrl);
 
 			// 새 이미지의 메타데이터 생성
 			ObjectMetadata metadata = new ObjectMetadata();
@@ -83,6 +83,24 @@ public class S3Service {
 		// 업로드할 파일 이름 설정 및 반환
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 		return LocalDateTime.now().format(formatter) + "-book-image" + fileExtension;
+	}
+
+	/** 이미지 파일 삭제 **/
+	public void deleteFile(String imageFileUrl) {
+		// S3에서 삭제할 파일의 이름 추출
+		String fileName = getFileNameFromUrl(imageFileUrl);
+
+		try {
+			// S3에서 파일 삭제
+			s3Client.deleteObject(bucketName, fileName);
+		} catch (Exception e) {
+			throw new ApiException(ErrorCode.S3_DELETE_FAILED);
+		}
+	}
+
+	/** URL에서 파일 이름 추출 **/
+	private String getFileNameFromUrl(String fileUrl) {
+		return fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
 	}
 
 }

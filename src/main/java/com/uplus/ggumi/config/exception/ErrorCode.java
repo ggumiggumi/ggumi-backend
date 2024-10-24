@@ -35,6 +35,7 @@ public enum ErrorCode {
 
 	S3_UPLOAD_FAILED(500, "S3에 파일 업로드 실패했습니다.", 1501),
 	S3_UPDATE_FAILED(500, "S3에 파일 갱신에 실패했습니다.", 1502),
+	S3_DELETE_FAILED(500, "S3에 파일 삭재에 실패했습니다.", 1503),
 
 	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601);
 
