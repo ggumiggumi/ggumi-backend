@@ -14,6 +14,7 @@ import com.uplus.ggumi.config.exception.ApiException;
 import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.dto.book.BookManagementRequestDto;
+import com.uplus.ggumi.dto.book.BookManagementResponseDto;
 import com.uplus.ggumi.dto.book.BookResponseDto;
 import com.uplus.ggumi.dto.book.MainBookResponseDto;
 import com.uplus.ggumi.dto.book.MainBookResponseDto.BookDto;
@@ -29,10 +30,13 @@ import lombok.RequiredArgsConstructor;
 public class BookService {
 
 	public static final int PAGE_SIZE = 4;
+	public static final int BOOK_MANAGEMENT_PAGE_SIZE = 10;
 
 	private final BookRepository bookRepository;
 	private final RecommendRepository recommendRepository;
 	private final HistoryRepository historyRepository;
+
+	private final S3Service s3Service;
 
 	public BookResponseDto search(String keyword) {
 		List<Book> bookList = bookRepository.findByTitleContainingOrderByCreatedAt(keyword);
@@ -100,8 +104,6 @@ public class BookService {
 			.build();
 	}
 
-	private final S3Service s3Service;
-
 	/** 도서 정보 등록 **/
 	public Long createBook(BookManagementRequestDto requestDto, MultipartFile bookImage) {
 
@@ -138,4 +140,69 @@ public class BookService {
 
 		return book.getId();
 	}
+
+	/** 도서 정보 삭제 **/
+	public Long deleteBook(Long bookId) {
+
+		Book book = bookRepository.findById(bookId)
+			.orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
+
+		// S3 책 이미지 삭제하기
+		s3Service.deleteFile(book.getBook_image());
+
+		bookRepository.delete(book);
+
+		return book.getId();
+	}
+
+	/** 특정 도서 정보 반환 **/
+	public BookManagementResponseDto.BookDto getBook(Long bookId) {
+		Book book = bookRepository.findById(bookId)
+			.orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
+
+		return BookManagementResponseDto.BookDto.builder()
+			.id(book.getId())
+			.title(book.getTitle())
+			.author(book.getAuthor())
+			.publisher(book.getPublisher())
+			.recommend_age(book.getRecommend_age())
+			.EI(book.getEI())
+			.SN(book.getSN())
+			.FT(book.getFT())
+			.PJ(book.getPJ())
+			.content(book.getContent())
+			.book_image(book.getBook_image())
+			.build();
+
+	}
+
+	public BookManagementResponseDto getBookList(int page) {
+
+		Pageable pageable = PageRequest.of(page, BOOK_MANAGEMENT_PAGE_SIZE);
+
+		Page<BookManagementResponseDto.BookDto> bookPage;
+
+		bookPage = bookRepository.findAll(pageable)
+			.map(book -> BookManagementResponseDto.BookDto.builder()
+				.id(book.getId())
+				.title(book.getTitle())
+				.author(book.getAuthor())
+				.publisher(book.getPublisher())
+				.recommend_age(book.getRecommend_age())
+				.EI(book.getEI())
+				.SN(book.getSN())
+				.FT(book.getFT())
+				.PJ(book.getPJ())
+				.content(book.getContent())
+				.book_image(book.getBook_image())
+				.build());
+
+		return BookManagementResponseDto.builder()
+			.books(bookPage.getContent())
+			.number(bookPage.getNumber())
+			.size(bookPage.getSize())
+			.totalPages(bookPage.getTotalPages())
+			.build();
+	}
+
 }
