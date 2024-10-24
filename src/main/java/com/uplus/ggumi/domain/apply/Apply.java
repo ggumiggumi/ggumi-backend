@@ -1,7 +1,9 @@
 package com.uplus.ggumi.domain.apply;
 
-import com.uplus.ggumi.domain.parent.Parent;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +20,12 @@ public class Apply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Parent parent;
-
+    /*
+        @OneToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "parent_id")
+        private Parent parent;
+    */
+    private Long parentId;
     private Long applyTime;
 
 }
