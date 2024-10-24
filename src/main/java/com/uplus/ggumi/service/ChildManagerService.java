@@ -38,8 +38,7 @@ public class ChildManagerService {
         return childRepository.save(child).getId();
     }
 
-    public List<ChildProfileResponseDto> getChildProfileList(String accessToken) {
-        Parent parent = parentService.getAccountByToken(accessToken);
+    public List<ChildProfileResponseDto> getChildProfileList(Parent parent) {
         List<Child> children = childRepository.findByParentId(parent.getId());
         if (children.isEmpty()) {
             throw new ApiException(ErrorCode.CHILDREN_NOT_EXIST);
