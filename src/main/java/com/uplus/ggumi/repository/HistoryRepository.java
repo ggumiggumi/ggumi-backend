@@ -15,12 +15,16 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 	History findTopByChildIdOrderByCreatedAtDesc(@Param("childId") Long childId);
 
 
-	@Query("SELECT h FROM History h " +
-		"WHERE h.child.id = :childId " +
-		"AND h.isDeleted = false " +
-		"GROUP BY FUNCTION('YEAR', h.createdAt), FUNCTION('WEEK', h.createdAt) " +
-		"HAVING h.createdAt = MAX(h.createdAt) " +
-		"ORDER BY h.createdAt DESC")
+	@Query(value = "SELECT * FROM (" +
+			"   SELECT h.*, ROW_NUMBER() OVER (PARTITION BY EXTRACT(YEAR FROM h.created_at), EXTRACT(WEEK FROM h.created_at) " +
+			"                                ORDER BY h.created_at DESC) as rn " +
+			"   FROM history h " +
+			"   WHERE h.is_deleted = false " +
+			"   AND h.child_id = :childId" +
+			") subquery " +
+			"WHERE rn = 1 " +
+			"ORDER BY subquery.created_at DESC",
+			nativeQuery = true)
 	List<History> findByChildIdLatestHistoryByWeek(@Param("childId") Long childId);
 
 	boolean existsByChildId(Long childId);
