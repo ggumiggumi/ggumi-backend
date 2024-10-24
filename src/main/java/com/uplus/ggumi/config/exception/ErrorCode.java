@@ -24,16 +24,19 @@ public enum ErrorCode {
 	NO_TOKEN_ACCOUNT(401, "토큰에 해당하는 계정 정보가 없습니다.", 1012),
 	UNAUTHORIZED_ACCESS(401, "권한이 없는 환자의 정보를 조회할 수 없습니다.", 1013),
 
-
 	PARENT_NOT_EXIST(500, "부모 정보 찾기를 실패하였습니다", 1200),
 	CHILD_NOT_EXIST(500, "자녀 정보 찾기를 실패하를습니다.", 1201),
-	CHILDREN_NOT_EXIST(500, "자녀 리스트가 없습니다.", 1202 ),
-	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203 ),
+	CHILDREN_NOT_EXIST(500, "자녀 리스트가 없습니다.", 1202),
+	CHILD_CREATION_LIMIT_REACHED(500, "더 이상 자녀를 생성할 수 없습니다", 1203),
 
 	HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1301),
 
-	FEEDBACK_NOT_EXIST(500, "해당하는 피드백 정보가 없습니다.", 1401);
+	FEEDBACK_NOT_EXIST(500, "해당하는 피드백 정보가 없습니다.", 1401),
 
+	S3_UPLOAD_FAILED(500, "S3에 파일 업로드 실패했습니다.", 1501),
+	S3_UPDATE_FAILED(500, "S3에 파일 갱신에 실패했습니다.", 1502),
+
+	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601);
 
 	private final int status;
 	private final String message;
