@@ -18,15 +18,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ChildManagerService {
-
-    private final ParentService parentService;
     private final ChildRepository childRepository;
 
-    public Long createChildProfile(String accessToken, ChildProfileRequestDto requestDto) {
-        Parent parent = parentService.getAccountByToken(accessToken);
-
-        checkChildCreationLimit(accessToken);
-
+    public Long createChildProfile(Parent parent, ChildProfileRequestDto requestDto) {
+        checkChildCreationLimit(parent);
         Child child = Child.builder()
                 .name(requestDto.getName())
                 .birthday(requestDto.getBirthday())
@@ -77,8 +72,7 @@ public class ChildManagerService {
         return child.getId();
     }
 
-    public int checkChildCreationLimit(String accessToken) {
-        Parent parent = parentService.getAccountByToken(accessToken);
+    public int checkChildCreationLimit(Parent parent) {
         List<Child> children = childRepository.findByParentId(parent.getId());
         if (children.size() >= 3) {
             throw new ApiException(ErrorCode.CHILD_CREATION_LIMIT_REACHED);

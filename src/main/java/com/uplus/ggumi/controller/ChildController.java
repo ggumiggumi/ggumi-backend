@@ -31,8 +31,8 @@ public class ChildController {
     private final ChildManagerService childManagerService;
 
     @PostMapping("")
-    public ResponseDto<Long> createChild(HttpServletRequest request, @RequestBody ChildProfileRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("자녀 프로필 생성에 성공하였습니다.", childManagerService.createChildProfile(request.getHeader("Authorization"), requestDto));
+    public ResponseDto<Long> createChild(@AuthenticationPrincipal ParentDetails parentDetails, @RequestBody ChildProfileRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("자녀 프로필 생성에 성공하였습니다.", childManagerService.createChildProfile(parentDetails.getParent(), requestDto));
     }
 
     @GetMapping("/list")
@@ -51,7 +51,7 @@ public class ChildController {
     }
 
     @GetMapping("/can-create")
-    public ResponseDto<Integer> allowChildProfileCreation(HttpServletRequest request) {
-        return ResponseUtil.SUCCESS("자녀 프로필 생성이 가능합니다.", childManagerService.checkChildCreationLimit(request.getHeader("Authorization"))); // 실제 화면 이동 로직 필요
+    public ResponseDto<Integer> allowChildProfileCreation(@AuthenticationPrincipal ParentDetails parentDetails) {
+        return ResponseUtil.SUCCESS("자녀 프로필 생성이 가능합니다.", childManagerService.checkChildCreationLimit(parentDetails.getParent()));
     }
 }
