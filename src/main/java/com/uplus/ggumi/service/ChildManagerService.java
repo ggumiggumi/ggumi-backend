@@ -40,11 +40,12 @@ public class ChildManagerService {
         }
         return children.stream()
                 .map(child -> ChildProfileResponseDto.builder()
+                        .id(child.getId())
                         .name(child.getName())
                         .birthday(child.getBirthday())
                         .profileCode(child.getProfileCode())
                         .gender(child.getGender())
-                        .parent(child.getParent())
+                        .parentId(child.getParent().getId())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -55,11 +56,12 @@ public class ChildManagerService {
                 .orElseThrow(() -> new ApiException(ErrorCode.CHILD_NOT_EXIST));
 
         return ChildProfileResponseDto.builder()
+                .id(childId)
                 .name(child.getName())
                 .birthday(child.getBirthday())
                 .profileCode(child.getProfileCode())
                 .gender(child.getGender())
-                .parent(child.getParent())
+                .parentId(child.getParent().getId())
                 .build();
     }
 
