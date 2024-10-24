@@ -21,7 +21,7 @@ public class ApplyController {
 
     @PostMapping("/ver1")
     public ResponseDto<Boolean> apply(@RequestBody ApplyRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto.getParentId(), requestDto.getApplyTime()));
+        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto.getChildId(), requestDto.getApplyTime()));
     }
 
 }
