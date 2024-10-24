@@ -15,9 +15,10 @@ import java.time.LocalDate;
 @Builder
 public class ChildProfileResponseDto {
 
+    private Long id;
     private String name;
     private LocalDate birthday;
     private int profileCode;
     private Gender gender;
-    private Parent parent;
+    private Long parentId;
 }
