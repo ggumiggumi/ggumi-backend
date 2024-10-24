@@ -1,77 +1,80 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.10'
-	id 'io.spring.dependency-management' version '1.1.6'
-	id 'org.hibernate.orm' version '6.4.10.Final'
-	id 'org.graalvm.buildtools.native' version '0.9.28'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.10'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.hibernate.orm' version '6.4.10.Final'
+    id 'org.graalvm.buildtools.native' version '0.9.28'
 }
 
 group = 'com.uplus'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	//Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	// jwt
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-	//lombok
-	annotationProcessor 'org.projectlombok:lombok'
-	compileOnly 'org.projectlombok:lombok'
+    //lombok
+    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	//Mysql
-	runtimeOnly 'com.mysql:mysql-connector-j'
+    //Mysql
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
-	//google gson
-	implementation 'com.google.code.gson:gson'
+    //google gson
+    implementation 'com.google.code.gson:gson'
 
-	//swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
-	//actuator
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    //actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	//prometheus
-	implementation 'io.micrometer:micrometer-registry-prometheus'
+    //prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
-	//test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    //test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 hibernate {
-	enhancement {
-		enableAssociationManagement = true
-	}
+    enhancement {
+        enableAssociationManagement = true
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

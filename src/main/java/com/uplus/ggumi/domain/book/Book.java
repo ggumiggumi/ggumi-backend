@@ -6,8 +6,14 @@ import java.util.List;
 import com.uplus.ggumi.domain.book_tag.BookTag;
 import com.uplus.ggumi.domain.feedback.Feedback;
 import com.uplus.ggumi.domain.global.BaseTimeEntity;
+import com.uplus.ggumi.dto.book.BookManagementRequestDto;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,5 +51,22 @@ public class Book extends BaseTimeEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "book")
 	private List<BookTag> bookTagList = new ArrayList<>();
+
+	public void update(BookManagementRequestDto requestDto, String book_image_url) {
+
+		this.EI = requestDto.getEI();
+		this.SN = requestDto.getSN();
+		this.FT = requestDto.getFT();
+		this.PJ = requestDto.getPJ();
+
+		this.content = requestDto.getContent();
+
+		this.title = requestDto.getTitle();
+		this.author = requestDto.getAuthor();
+		this.publisher = requestDto.getPublisher();
+		this.recommend_age = requestDto.getRecommend_age();
+
+		this.book_image = book_image_url;
+	}
 
 }
