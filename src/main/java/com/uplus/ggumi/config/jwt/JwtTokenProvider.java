@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,8 +18,12 @@ import org.springframework.stereotype.Component;
 
 import com.uplus.ggumi.config.exception.ApiException;
 import com.uplus.ggumi.config.exception.ErrorCode;
+import com.uplus.ggumi.domain.parent.Parent;
+import com.uplus.ggumi.domain.parent.ParentDetails;
+import com.uplus.ggumi.domain.parent.Provider;
 import com.uplus.ggumi.dto.token.TokenAccountInfoDto;
 import com.uplus.ggumi.dto.token.TokenInfoDto;
+import com.uplus.ggumi.repository.ParentRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -35,11 +40,14 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtTokenProvider {
 
 	private final Key key;
+	private final ParentRepository parentRepository;
 	private final int ACCESSTOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; //일주일
 	private final int REFRESHTOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 21;
 
-	public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
-		this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+	@Autowired
+	public JwtTokenProvider(@Value("${jwt.secret}") String secret, ParentRepository parentRepository) {
+		this.key = Keys.hmacShaKeyFor(secret.getBytes());
+		this.parentRepository = parentRepository;
 	}
 
 	public TokenInfoDto generateToken(Authentication authentication) {
@@ -88,9 +96,14 @@ public class JwtTokenProvider {
 
 		String[] subjectParts = claims.getSubject().split(",");
 		String email = subjectParts[0];
+		Provider provider = subjectParts.length > 1 ? Provider.valueOf(subjectParts[1]) : null;
 
-		UserDetails principal = new User(email, "", authorities);
-		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+		Parent parent = parentRepository.findByEmailAndProvider(email, provider)
+			.orElseThrow(() -> new ApiException(ErrorCode.PARENT_NOT_EXIST));
+
+		ParentDetails parentDetails = new ParentDetails(parent);
+
+		return new UsernamePasswordAuthenticationToken(parentDetails, accessToken, authorities);
 	}
 
 	public boolean validateToken(String accessToken) {

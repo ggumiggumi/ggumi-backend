@@ -2,6 +2,7 @@ package com.uplus.ggumi.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uplus.ggumi.config.response.ResponseDto;
 import com.uplus.ggumi.config.response.ResponseUtil;
+import com.uplus.ggumi.domain.parent.ParentDetails;
 import com.uplus.ggumi.dto.child.ChildProfileRequestDto;
 import com.uplus.ggumi.dto.child.ChildProfileResponseDto;
 import com.uplus.ggumi.service.ChildManagerService;
@@ -34,8 +36,8 @@ public class ChildController {
     }
 
     @GetMapping("/list")
-    public ResponseDto<List<ChildProfileResponseDto>> getChildren(HttpServletRequest request) {
-        return ResponseUtil.SUCCESS("자녀 프로필 정보 리스트를 가져오는 것을 성공하였습니다.", childManagerService.getChildProfileList(request.getHeader("Authorization")));
+    public ResponseDto<List<ChildProfileResponseDto>> getChildren(@AuthenticationPrincipal ParentDetails parentDetails) {
+        return ResponseUtil.SUCCESS("자녀 프로필 정보 리스트를 가져오는 것을 성공하였습니다.", childManagerService.getChildProfileList(parentDetails.getParent()));
     }
 
     @GetMapping("/{childId}")
