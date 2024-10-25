@@ -20,8 +20,8 @@ public class ApplyController {
     private final ApplyService applyService;
 
     @PostMapping("/ver1")
-    public ResponseDto<Boolean> apply(@RequestBody ApplyRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto.getChildId(), requestDto.getApplyTime()));
+    public ResponseDto<String> apply(@RequestBody ApplyRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto));
     }
 
 }
