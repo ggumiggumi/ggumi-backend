@@ -1,8 +1,8 @@
 package com.uplus.ggumi.repository;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,8 +29,8 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 		nativeQuery = true)
 	List<History> findByChildIdLatestHistoryByWeek(@Param("childId") Long childId);
 
-	@Query("SELECT h FROM History h WHERE h.child.id = :childId AND h.isDeleted = false ORDER BY h.createdAt DESC")
-	List<History> findLatestHistoryByChildId(@Param("childId") Long childId, Pageable pageable);
+	@Query(value = "SELECT * FROM history h WHERE h.child_id = :childId AND h.is_deleted = false ORDER BY h.created_at DESC LIMIT 1", nativeQuery = true)
+	Optional<History> findLatestHistoryByChildId(@Param("childId") Long childId);
 
 	boolean existsByChildId(Long childId);
 }

@@ -2,8 +2,6 @@ package com.uplus.ggumi.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,10 +76,8 @@ public class HistoryService {
 
 		Child child = childRepository.findById(childId)
 			.orElseThrow(() -> new ApiException(ErrorCode.CHILD_NOT_EXIST));
-		Pageable pageable = PageRequest.of(0, 1);
-		History latestHistory = historyRepository.findLatestHistoryByChildId(childId, pageable)
-			.stream()
-			.findFirst()
+
+		History latestHistory = historyRepository.findLatestHistoryByChildId(childId)
 			.orElseThrow(() -> new ApiException(ErrorCode.HISTORY_NOT_EXIST));
 
 		// MBTI 계산
