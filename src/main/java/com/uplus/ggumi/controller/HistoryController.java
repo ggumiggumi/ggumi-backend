@@ -50,9 +50,11 @@ public class HistoryController {
     }
 
     private String getCookieValue(HttpServletRequest request, String cookieName) {
+        System.out.println("==================");
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
+                System.out.println("name: " + cookie.getName() + ", value: " + cookie.getValue());
                 if (cookie.getName().equals(cookieName)) {
                     return cookie.getValue();
                 }
