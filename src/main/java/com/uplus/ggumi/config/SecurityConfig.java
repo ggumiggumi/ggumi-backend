@@ -45,7 +45,6 @@ public class SecurityConfig {
 					config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 					config.setAllowCredentials(true);
 					config.setAllowedHeaders(Collections.singletonList("*"));
-					config.setAllowCredentials(true);
 					config.setMaxAge(3600L);
 					return config;
 				}
