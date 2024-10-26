@@ -20,8 +20,12 @@ public class ApplyController {
     private final ApplyService applyService;
 
     @PostMapping("/ver1")
-    public ResponseDto<String> apply(@RequestBody ApplyRequestDto requestDto) {
+    public ResponseDto<String> applyVer1(@RequestBody ApplyRequestDto requestDto) {
         return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto));
     }
 
+    @PostMapping("/ver2")
+    public ResponseDto<String> applyVer2(@RequestBody ApplyRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer2(requestDto));
+    }
 }
