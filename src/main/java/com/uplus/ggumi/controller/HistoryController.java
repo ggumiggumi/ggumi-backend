@@ -52,6 +52,10 @@ public class HistoryController {
     private String getCookieValue(HttpServletRequest request, String cookieName) {
         System.out.println("==================");
         Cookie[] cookies = request.getCookies();
+        System.out.println("size: " + cookies.length);
+        for (Cookie cookie : cookies) {
+            System.out.println("cookie: " + cookie.getName() + ", value: " + cookie.getValue());
+        }
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 System.out.println("name: " + cookie.getName() + ", value: " + cookie.getValue());
@@ -60,6 +64,7 @@ public class HistoryController {
                 }
             }
         }
+        System.out.println("cookies는 null인디용?");
         return null;
     }
 
