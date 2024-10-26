@@ -43,7 +43,7 @@ public class HistoryController {
         return ResponseUtil.SUCCESS("자녀의 MBTI history 정보를 가져오는 것을 성공하였습니다.", historyService.getChildInfoMbtiHistory(childId));
     }
 
-    @GetMapping("my-child-mbti")
+    @GetMapping("/my-child-mbti")
     public ResponseDto<MyChildMBTITypeDto> getChildMbti(HttpServletRequest request) {
         String childId = getCookieValue(request, "ChildId");
         return ResponseUtil.SUCCESS("자녀의 현재 MBTI를 가져오는 것을 성공하였습니다.", historyService.getChildMbtiType(childId));
@@ -51,6 +51,8 @@ public class HistoryController {
 
     private String getCookieValue(HttpServletRequest request, String cookieName) {
         System.out.println("==================");
+        System.out.println(request.toString());
+        System.out.println("###################");
         Cookie[] cookies = request.getCookies();
         System.out.println("size: " + cookies.length);
         for (Cookie cookie : cookies) {
