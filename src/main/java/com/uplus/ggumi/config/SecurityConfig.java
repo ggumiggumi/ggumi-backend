@@ -44,7 +44,6 @@ public class SecurityConfig {
 					config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "http://13.125.110.207:8080", "https://hyodev.kr"));
 					config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 					config.setAllowCredentials(true);
-					config.setAllowedHeaders(Collections.singletonList("*"));
 					config.setMaxAge(3600L);
 					return config;
 				}
