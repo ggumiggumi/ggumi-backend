@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApplyRequestDto {
 
-    private Long childId;
+    private String name;
+    private String phoneNumber;
     private Long applyTime;
 
 }

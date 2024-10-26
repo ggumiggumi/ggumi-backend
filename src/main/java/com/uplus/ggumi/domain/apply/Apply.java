@@ -18,10 +18,8 @@ public class Apply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "child_id")
-    private Child child;
-
+    private String name;
+    private String phoneNumber;
     private Long applyTime;
 
 }
