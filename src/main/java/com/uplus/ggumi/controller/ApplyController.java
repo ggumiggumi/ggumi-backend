@@ -21,11 +21,16 @@ public class ApplyController {
 
     @PostMapping("/ver1")
     public ResponseDto<String> applyVer1(@RequestBody ApplyRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer1(requestDto));
+        return ResponseUtil.SUCCESS("성공적으로 응모 요청을 받았습니다.", applyService.applyVer1(requestDto));
     }
 
     @PostMapping("/ver2")
     public ResponseDto<String> applyVer2(@RequestBody ApplyRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer2(requestDto));
+        return ResponseUtil.SUCCESS("성공적으로 응모 요청을 받았습니다.", applyService.applyVer2(requestDto));
+    }
+
+    @PostMapping("/ver3")
+    public ResponseDto<String> applyVer3(@RequestBody ApplyRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("성공적으로 응모 요청을 받았습니다.", applyService.applyVer3(requestDto));
     }
 }

@@ -16,6 +16,7 @@ public class ApplyService {
 
     public static final String APPLY = "apply";
     public static final String APPLY_CHANNEL = "applyChannel";
+    public static final String APPLY_QUEUE = "applyQueue";
     private final ApplyRepository applyRepository;
 
     private final RedisTemplate<String, Object> redisTemplate;
@@ -62,4 +63,18 @@ public class ApplyService {
         }
         return "SUCCESS";
     }
+
+    /* 클라이언트 요청 시 Redis 큐에 저장 */
+    public String applyVer3(ApplyRequestDto requestDto) {
+        try {
+            String applyJson = objectMapper.writeValueAsString(requestDto);
+            redisTemplate.opsForList().rightPush(APPLY_QUEUE, applyJson);
+        } catch (Exception e) {
+            log.error("Redis 큐에 저장 중 오류 발생 : ", e);
+            return "FAILED";
+        }
+        return "SUCCESS";
+    }
+
+
 }
