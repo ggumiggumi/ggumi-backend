@@ -1,14 +1,22 @@
 package com.uplus.ggumi.repository;
 
-import com.uplus.ggumi.domain.feedback.Feedback;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.uplus.ggumi.domain.feedback.Feedback;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
-    Optional<Feedback> findByBookIdAndChildId(Long bookId, Long childId);
+	Optional<Feedback> findByBookIdAndChildId(Long bookId, Long childId);
 
+	@Modifying
+	@Query("UPDATE Feedback f SET f.isDeleted = true, f.deletedAt = :now WHERE f.child.id = :childId")
+	int markFeedbackAsDeletedByChildId(@Param("childId") Long childId, @Param("now") LocalDateTime now);
 }
