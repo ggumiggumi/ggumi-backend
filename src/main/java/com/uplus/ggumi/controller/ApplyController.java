@@ -28,4 +28,11 @@ public class ApplyController {
     public ResponseDto<String> applyVer2(@RequestBody ApplyRequestDto requestDto) {
         return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer2(requestDto));
     }
+
+    @PostMapping("/ver4")
+    public ResponseDto<String> applyVer4(@RequestBody ApplyRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer4(requestDto));
+    }
+
+
 }
