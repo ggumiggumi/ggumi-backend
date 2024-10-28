@@ -65,17 +65,7 @@ public class ApplyService {
         }
         return "SUCCESS";
     }
-
-    public String applyVer4(ApplyRequestDto requestDto) {
-        try {
-            kafkaTemplate.send("apply", requestDto.getPhoneNumber(), requestDto);
-        } catch (Exception e) {
-            log.error("응모 발행 중 오류 발생 : ", e);
-            return "FAILED";
-        }
-        return "SUCCESS";
-    }
-
+  
     /* 클라이언트 요청 시 Redis 큐에 저장 */
     public String applyVer3(ApplyRequestDto requestDto) {
         try {
@@ -88,5 +78,14 @@ public class ApplyService {
         return "SUCCESS";
     }
 
+    public String applyVer4(ApplyRequestDto requestDto) {
+        try {
+            kafkaTemplate.send("apply", requestDto.getPhoneNumber(), requestDto);
+        } catch (Exception e) {
+            log.error("응모 발행 중 오류 발생 : ", e);
+            return "FAILED";
+        }
+        return "SUCCESS";
+    }
 
 }
