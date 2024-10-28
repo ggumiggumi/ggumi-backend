@@ -18,7 +18,6 @@ import com.uplus.ggumi.dto.child.ChildProfileRequestDto;
 import com.uplus.ggumi.dto.child.ChildProfileResponseDto;
 import com.uplus.ggumi.service.ChildManagerService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
