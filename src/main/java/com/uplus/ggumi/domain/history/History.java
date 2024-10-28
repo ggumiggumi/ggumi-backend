@@ -50,4 +50,5 @@ public class History extends BaseTimeEntity {
 		this.isDeleted = false;
 		this.child = child;
 	}
+
 }

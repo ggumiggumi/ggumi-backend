@@ -1,4 +1,4 @@
-package com.uplus.ggumi.config;
+package com.uplus.ggumi.config.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

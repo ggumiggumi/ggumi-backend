@@ -7,6 +7,7 @@ import com.uplus.ggumi.repository.ApplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class ApplyService {
     private final ApplyRepository applyRepository;
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final KafkaTemplate<String, ApplyRequestDto> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     /* 1단계 기본 Spring Boot + MySQL을 사용한 단일 모듈 구조
@@ -56,6 +58,16 @@ public class ApplyService {
             *  Pub/Sub 채널로 메시지를 발행한다.  */
             redisTemplate.convertAndSend(APPLY_CHANNEL, objectMapper.writeValueAsString(requestDto));
 
+        } catch (Exception e) {
+            log.error("응모 발행 중 오류 발생 : ", e);
+            return "FAILED";
+        }
+        return "SUCCESS";
+    }
+
+    public String applyVer4(ApplyRequestDto requestDto) {
+        try {
+            kafkaTemplate.send("apply", requestDto.getPhoneNumber(), requestDto);
         } catch (Exception e) {
             log.error("응모 발행 중 오류 발생 : ", e);
             return "FAILED";
