@@ -99,6 +99,7 @@ public class HistoryService {
 
 		return MyChildMBTITypeDto.builder()
 			.name(child.getName())
+			.profileCode(child.getProfileCode())
 			.E(intE)
 			.I(100 - intE)
 			.S(intS)
