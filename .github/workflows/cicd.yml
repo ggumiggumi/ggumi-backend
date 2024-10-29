@@ -76,18 +76,11 @@ jobs:
             sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             sudo docker image prune -f
             echo "사용하지 않는 Docker image 정리"
-
       - name: Create AMI
         run: |
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
-#          echo "Creating AMI with ID: $IMAGE_ID"
           echo "Waiting for the AMI to become available..."
-          aws ec2 wait image-available --image-ids $IMAGE_ID
-          
-          echo "AMI $IMAGE_ID is now available."
-
-#          IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
       - name: Check Environment Variables
         run: |
           echo "Current environment variables:"
