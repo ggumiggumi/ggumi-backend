@@ -1,8 +1,17 @@
 package com.uplus.ggumi.domain.recommend;
 
+import java.time.LocalDateTime;
+
 import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.domain.child.Child;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,16 +24,18 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Recommend {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "child_id")
-    private Child child;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "child_id")
+	private Child child;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id")
-    private Book book;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "book_id")
+	private Book book;
 
+	private LocalDateTime deletedAt;
+	private boolean isDeleted;
 }
