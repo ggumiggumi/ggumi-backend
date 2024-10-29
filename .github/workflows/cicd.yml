@@ -76,15 +76,34 @@ jobs:
             sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             sudo docker image prune -f
             echo "사용하지 않는 Docker image 정리"
-      - name: Fetch Instance_ID and Create AMI
+      - name: Fetch Instance ID
         run: |
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
-          echo "Waiting for the AMI to become available..."
-          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text
-#          aws ec2 wait image-available --image-ids $IMAGE_ID
-#          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
-#          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          echo "Raw Instance ID output: $INSTANCE_ID"
+
+          if [ -z "$INSTANCE_ID" ]; then
+            echo "Error: No instance found with the tag 'ggumi'."
+            exit 1
+          else
+            echo "Instance ID: $INSTANCE_ID"
+          fi
+
+      - name: Create AMI
+        run: |
+          if [ ! -z "$INSTANCE_ID" ]; then
+            echo "Waiting for the AMI to become available..."
+            IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+            echo "Creating AMI with ID: $IMAGE_ID"
+
+            echo "Waiting for the AMI to become available..."
+            aws ec2 wait image-available --image-ids $IMAGE_ID
+
+            echo "AMI $IMAGE_ID is now available."
+          else
+            echo "Error: INSTANCE_ID is empty, cannot create AMI."
+            exit 1
+          fi
 
       - name: Update Auto Scaling Group
         run: |
