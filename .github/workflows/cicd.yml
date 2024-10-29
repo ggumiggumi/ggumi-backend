@@ -100,14 +100,22 @@ jobs:
           
           echo "Updating existing Launch Template with new AMI..."
           CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
-          
+          echo "Current Launch Template: $CURRENT_LAUNCH_TEMPLATE"
           LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
           LAUNCH_TEMPLATE_VERSION=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
+          INSTANCE_TYPE=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.InstanceType')
+          KEY_NAME=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.KeyName')
+          SECURITY_GROUP_IDS=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.SecurityGroupIds | join(",")')
+          echo "Launch Template ID: $LAUNCH_TEMPLATE_ID"
+          echo "Launch Template Version: $LAUNCH_TEMPLATE_VERSION"
+          echo "Instance Type: $INSTANCE_TYPE"
+          echo "Key Name: $KEY_NAME"
+          echo "Security Group IDs: $SECURITY_GROUP_IDS"
 
           aws ec2 create-launch-template-version \
             --launch-template-id $LAUNCH_TEMPLATE_ID \
             --source-version $LAUNCH_TEMPLATE_VERSION \
-            --launch-template-data "{\"imageId\":\"$IMAGE_ID\"}"
+            --launch-template-data "{\"imageId\":\"$IMAGE_ID\",\"instanceType\":\"t2.micro\",\"keyName\":\"your-key-name\",\"securityGroupIds\":[\"your-security-group-id\"]}"
           echo "Launch Template updated successfully."
 
       - name: Update Auto Scaling Group
