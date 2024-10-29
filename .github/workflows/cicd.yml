@@ -79,10 +79,25 @@ jobs:
 
       - name: Create AMI
         run: |
+          echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          if [ -z "$INSTANCE_ID" ]; then
+            echo "Error: No instance found with the tag 'ggumi'."
+            exit 1
+          fi
+          
           echo "Instance ID: $INSTANCE_ID"
-          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
-          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          
+          IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+          echo "Creating AMI with ID: $IMAGE_ID"
+          echo "Waiting for the AMI to become available..."
+          aws ec2 wait image-available --image-ids $IMAGE_ID
+          
+          echo "AMI $IMAGE_ID is now available."
+    
+
+#          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
+#          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
 
       - name: Update Auto Scaling Group
         run: |
