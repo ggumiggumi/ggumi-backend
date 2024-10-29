@@ -77,7 +77,7 @@ jobs:
           echo "Testing AWS CLI Configurationn"
           aws sts get-caller-identity
 
-      - name: Fetch Instance ID
+      - name: Fetch Instance ID And
         run: |
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
@@ -89,22 +89,12 @@ jobs:
           else
             echo "Instance ID: $INSTANCE_ID"
           fi
-
-      - name: Create AMI
-        run: |
-          if [ ! -z "$INSTANCE_ID" ]; then
-            echo "Waiting for the AMI to become available..."
-            IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
-            echo "Creating AMI with ID: $IMAGE_ID"
-
-            echo "Waiting for the AMI to become available..."
-            aws ec2 wait image-available --image-ids $IMAGE_ID
-
-            echo "AMI $IMAGE_ID is now available."
-          else
-            echo "Error: INSTANCE_ID is empty, cannot create AMI."
-            exit 1
-          fi
+          echo "Waiting for the AMI to become available..."
+          IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+          echo "Creating AMI with ID: $IMAGE_ID"
+          echo "Waiting for the AMI to become available..."
+          aws ec2 wait image-available --image-ids $IMAGE_ID
+          echo "AMI $IMAGE_ID is now available."
 
       - name: Update Auto Scaling Group
         run: |
