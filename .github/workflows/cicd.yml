@@ -81,8 +81,8 @@ jobs:
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
           echo "Waiting for the AMI to become available..."
-          IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
-          aws ec2 wait image-available --image-ids $IMAGE_ID
+          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text
+#          aws ec2 wait image-available --image-ids $IMAGE_ID
 #          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
 #          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
 
