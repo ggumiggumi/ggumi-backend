@@ -84,13 +84,11 @@ jobs:
           echo "$INSTANCE_ID"
           if [ -z "$INSTANCE_ID" ]; then
             echo "Error: No instance found with the tag 'ggumi'."
-            exit 1
-          fi
           
-          echo "Instance ID: $INSTANCE_ID"
+#          echo "Instance ID: $INSTANCE_ID"
           
           IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
-          echo "Creating AMI with ID: $IMAGE_ID"
+#          echo "Creating AMI with ID: $IMAGE_ID"
           echo "Waiting for the AMI to become available..."
           aws ec2 wait image-available --image-ids $IMAGE_ID
           
