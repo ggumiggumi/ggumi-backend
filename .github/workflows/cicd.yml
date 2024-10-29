@@ -101,6 +101,8 @@ jobs:
           echo "Updating existing Launch Template with new AMI..."
           CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           echo "Current Launch Template: $CURRENT_LAUNCH_TEMPLATE"
+          echo "-------------------------------------------------"
+          echo $CURRENT_LAUNCH_TEMPLATE | jq '.'
           LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
           LAUNCH_TEMPLATE_VERSION=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
           INSTANCE_TYPE=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.InstanceType')
