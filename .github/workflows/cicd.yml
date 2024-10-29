@@ -80,7 +80,7 @@ jobs:
       - name: Create AMI
         run: |
           echo "Fetching Instance ID..."
-          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
           if [ -z "$INSTANCE_ID" ]; then
             echo "Error: No instance found with the tag 'ggumi'."
             exit 1
