@@ -81,6 +81,7 @@ jobs:
         run: |
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
+          echo "$INSTANCE_ID"
           if [ -z "$INSTANCE_ID" ]; then
             echo "Error: No instance found with the tag 'ggumi'."
             exit 1
@@ -94,7 +95,11 @@ jobs:
           aws ec2 wait image-available --image-ids $IMAGE_ID
           
           echo "AMI $IMAGE_ID is now available."
-    
+
+      - name: Check Environment Variables
+        run: |
+          echo "Current environment variables:"
+          env
 
 #          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
 #          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
