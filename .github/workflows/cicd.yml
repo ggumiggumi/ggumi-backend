@@ -46,7 +46,10 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ap-northeast-2 # 지역 설정
-      
+      - name: Test AWS CLI Configuration
+        run: |
+          echo "Testing AWS CLI Configurationn"
+          aws sts get-caller-identity
 
   deploy:
     needs: build
@@ -77,19 +80,10 @@ jobs:
       - name: Create AMI
         run: |
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
-#          echo "Instance ID: $INSTANCE_ID"
-#          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
-#          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
-#
-          if [ -z "$INSTANCE_ID" ]; then
-          echo "Error: No instance found with the tag 'Name=ggumi'."
-          exit 1
-          else
           echo "Instance ID: $INSTANCE_ID"
-          aws ec2 create-image —instance-id $INSTANCE_ID —name "ggumi-$(date +%Y%m%d%H%M%S)" —no-reboot
-          fi
+          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
 
       - name: Update Auto Scaling Group
         run: |
           aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-configuration-name GgumiServerTemplate
-
