@@ -77,6 +77,7 @@ jobs:
       - name: Create AMI
         run: |
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          echo "Instance ID: $INSTANCE_ID"
           aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
 
       - name: Update Auto Scaling Group
