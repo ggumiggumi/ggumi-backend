@@ -89,13 +89,29 @@ jobs:
           else
             echo "Instance ID: $INSTANCE_ID"
           fi
-          echo "Waiting for the AMI to become available..."
+          
+          echo "Creating AMI..."
           IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
           echo "Creating AMI with ID: $IMAGE_ID"
+          
           echo "Waiting for the AMI to become available..."
           aws ec2 wait image-available --image-ids $IMAGE_ID
           echo "AMI $IMAGE_ID is now available."
+          
+          echo "Updating existing Launch Template with new AMI..."
+          CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
+          
+          LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
+          LAUNCH_TEMPLATE_VERSION=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
+
+          aws ec2 create-launch-template-version \
+            --launch-template-id $LAUNCH_TEMPLATE_ID \
+            --source-version $LAUNCH_TEMPLATE_VERSION \
+            --launch-template-data "{\"imageId\":\"$IMAGE_ID\"}"
+          echo "Launch Template updated successfully."
 
       - name: Update Auto Scaling Group
         run: |
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-configuration-name GgumiServerTemplate
+          echo "Updating Auto Scaling Group with new Launch Template version..."
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=latest"
+          echo "Auto Scaling Group updated successfully."
