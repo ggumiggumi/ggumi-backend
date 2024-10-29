@@ -40,6 +40,14 @@ jobs:
           echo "docker 빌드 성공"
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
 
+      - name: Configure AWS CLI
+        run: |
+          echo "Configuring AWS CLI"
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-northeast-2 # 지역 설정
+      
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -65,3 +73,13 @@ jobs:
             sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             sudo docker image prune -f
             echo "사용하지 않는 Docker image 정리"
+
+      - name: Create AMI
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot
+
+      - name: Update Auto Scaling Group
+        run: |
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-configuration-name GgumiServerTemplate
+
