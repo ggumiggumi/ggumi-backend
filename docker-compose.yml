@@ -9,24 +9,48 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/localdb
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/ggumi
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_PASSWORD: Back0106!
       SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
-      SPRING_REDIS_HOST: host.docker.internal
-      SPRING_REDIS_PORT: 6379
-  zookeeper:
-    image: wurstmeister/zookeeper
-    container_name: zookeeper
+
+  redis:
+    image: "redis:latest"
+    container_name: "redis"
     ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka:2.13-3.8.0
-    container_name: kafka
-    ports:
-      - "9092:9092"
+      - "6379:6379"
+
+  redis-exporter:
+    image: "bitnami/redis-exporter:latest"
+    container_name: "redis-exporter"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
+
+  prometheus:
+    image: "prom/prometheus:latest"
+    container_name: "prometheus"
+    ports:
+      - "9090:9090"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - redis-exporter
+
+  grafana:
+    image: "grafana/grafana:latest"
+    container_name: "grafana"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:
