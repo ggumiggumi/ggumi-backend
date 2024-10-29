@@ -102,12 +102,13 @@ jobs:
           CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           echo "Current Launch Template: $CURRENT_LAUNCH_TEMPLATE"
           echo "-------------------------------------------------"
-          echo $CURRENT_LAUNCH_TEMPLATE | jq '.'
           LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
-          LAUNCH_TEMPLATE_VERSION=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
-          INSTANCE_TYPE=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.InstanceType')
-          KEY_NAME=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.KeyName')
-          SECURITY_GROUP_IDS=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateData.SecurityGroupIds | join(",")')
+          LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
+          LAUNCH_TEMPLATE_VERSION_DATA=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --version-number $LAUNCH_TEMPLATE_VERSION_NUMBER)
+          INSTANCE_TYPE=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.LaunchTemplateVersions[0].LaunchTemplateData.InstanceType')
+          KEY_NAME=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.LaunchTemplateVersions[0].LaunchTemplateData.KeyName')
+          SECURITY_GROUP_IDS=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.LaunchTemplateVersions[0].LaunchTemplateData.SecurityGroupIds | join(",")')
+          
           echo "Launch Template ID: $LAUNCH_TEMPLATE_ID"
           echo "Launch Template Version: $LAUNCH_TEMPLATE_VERSION"
           echo "Instance Type: $INSTANCE_TYPE"
@@ -116,8 +117,8 @@ jobs:
 
           aws ec2 create-launch-template-version \
             --launch-template-id $LAUNCH_TEMPLATE_ID \
-            --source-version $LAUNCH_TEMPLATE_VERSION \
-            --launch-template-data "{\"imageId\":\"$IMAGE_ID\",\"instanceType\":\"t2.micro\",\"keyName\":\"your-key-name\",\"securityGroupIds\":[\"your-security-group-id\"]}"
+            --source-version $LAUNCH_TEMPLATE_VERSION_NUMBER \
+            --launch-template-data "{\"imageId\":\"$IMAGE_ID\",\"instanceType\":\"$INSTANCE_TYPE\",\"keyName\":\"$KEY_NAME\",\"securityGroupIds\":[\"$SECURITY_GROUP_IDS\"]}"
           echo "Launch Template updated successfully."
 
       - name: Update Auto Scaling Group
