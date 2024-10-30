@@ -100,19 +100,12 @@ jobs:
           
           echo "Updating existing Launch Template with new AMI..."
           CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
-          echo "Current Launch Template: $CURRENT_LAUNCH_TEMPLATE"
           LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
-          echo "Launch Template ID: $LAUNCH_TEMPLATE_ID"
           LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
-          echo "Launch Template Version: $LAUNCH_TEMPLATE_VERSION_NUMBER"
           LAUNCH_TEMPLATE_VERSION_DATA=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query 'LaunchTemplateVersions[?VersionNumber==`'$LAUNCH_TEMPLATE_VERSION_NUMBER'`]' --output json)
-          echo "Launch Template version Data: $LAUNCH_TEMPLATE_VERSION_DATA"
           INSTANCE_TYPE=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.InstanceType')
-          echo "Instance Type: $INSTANCE_TYPE"
           KEY_NAME=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.KeyName')
-          echo "Key Name: $KEY_NAME"
           SECURITY_GROUP_IDS=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.SecurityGroupIds | join(",")')
-          echo "Security Group IDs: $SECURITY_GROUP_IDS"
 
           aws ec2 create-launch-template-version \
             --launch-template-id $LAUNCH_TEMPLATE_ID \

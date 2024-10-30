@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @OpenAPIDefinition(
 	servers = {
-		@Server(url = "https://hyodev.kr", description = "배포 서버"),
+		@Server(url = "http://ggumialb-337346902.ap-northeast-2.elb.amazonaws.com/", description = "배포 서버"),
 		@Server(url = "http://localhost:8080", description = "로컬 서버")
 	}
 )
