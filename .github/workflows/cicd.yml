@@ -101,7 +101,6 @@ jobs:
           echo "Updating existing Launch Template with new AMI..."
           CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           echo "Current Launch Template: $CURRENT_LAUNCH_TEMPLATE"
-          echo "-------------------------------------------------"
           LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
           echo "Launch Template ID: $LAUNCH_TEMPLATE_ID"
           LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
@@ -127,5 +126,5 @@ jobs:
           echo "Launch Template updated successfully."
           
           echo "Updating Auto Scaling Group with new Launch Template version..."
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=latest"
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_VERSION_NUMBER"
           echo "Auto Scaling Group updated successfully."
