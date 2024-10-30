@@ -72,6 +72,7 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ap-northeast-2 # 지역 설정
+
       - name: Test AWS CLI Configuration
         run: |
           echo "Testing AWS CLI Configurationn"
@@ -117,11 +118,22 @@ jobs:
               \"SecurityGroupIds\":[\"$SECURITY_GROUP_IDS\"]
             }"
           echo "Launch Template updated successfully."
-          
+      - name: Fetch Instance ID And
+        run: |
           LATEST_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           LATEST_LAUNCH_TEMPLATE_ID=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
           LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
           
+          echo "LATEST_LAUNCH_TEMPLATE: $LATEST_LAUNCH_TEMPLATE"
+          echo "LATEST_LAUNCH_TEMPLATE_ID: $LATEST_LAUNCH_TEMPLATE_ID"
+          echo "LATEST_LAUNCH_TEMPLATE_VERSION: $LATEST_LAUNCH_TEMPLATE_VERSION"
+          
           echo "Updating Auto Scaling Group with new Launch Template version..."
           aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LATEST_LAUNCH_TEMPLATE_ID,Version=$LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER"
           echo "Auto Scaling Group updated successfully."
+
+      - name: Start Instance Refresh
+        run: |
+          echo "Starting instance refresh for Auto Scaling Group..."
+          aws autoscaling start-instance-refresh --auto-scaling-group-name GgumiASG --strategy Rolling
+          echo "Instance refresh started successfully."
