@@ -126,5 +126,5 @@ jobs:
           echo "Launch Template updated successfully."
           
           echo "Updating Auto Scaling Group with new Launch Template version..."
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_VERSION_NUMBER"
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=$LAUNCH_TEMPLATE_VERSION_NUMBER"
           echo "Auto Scaling Group updated successfully."
