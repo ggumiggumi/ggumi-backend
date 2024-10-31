@@ -6,6 +6,7 @@ import com.uplus.ggumi.dto.apply.ApplyRequestDto;
 import com.uplus.ggumi.repository.ApplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -85,6 +86,15 @@ public class ApplyService {
             log.error("응모 발행 중 오류 발생 : ", e);
             return "FAILED";
         }
+        return "SUCCESS";
+    }
+
+    public String applyVer5(ApplyRequestDto requestDto) {
+
+        redisTemplate.opsForStream().add(StreamRecords.newRecord()
+                .in("apply_stream")
+                .ofObject(requestDto));
+
         return "SUCCESS";
     }
 
