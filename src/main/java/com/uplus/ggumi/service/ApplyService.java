@@ -46,15 +46,6 @@ public class ApplyService {
      * */
     public String applyVer2(ApplyRequestDto requestDto) {
 
-        String phoneNumber = requestDto.getPhoneNumber();
-
-        /* 중복 확인 */
-        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(APPLY, phoneNumber))) {
-            return "FAILED";
-        }
-
-        redisTemplate.opsForSet().add(APPLY, phoneNumber);
-
         try {
             /* ApplyRequestDto 객체를 JSON으로 변환하여 Redis 채널에 발행하며
             *  Pub/Sub 채널로 메시지를 발행한다.  */
