@@ -96,7 +96,10 @@ public class HardDeletePersonalInfoJobConfig {
 
 	@Bean
 	public ItemProcessor<Feedback, Feedback> feedbackProcessor() {
-		return item -> item;
+		return item -> {
+			System.out.println("Deleting Feedback: " + item.getId()); // 데이터 로깅
+			return item;
+		};
 	}
 
 	@Bean
@@ -157,7 +160,10 @@ public class HardDeletePersonalInfoJobConfig {
 
 	@Bean
 	public ItemProcessor<Recommend, Recommend> recommendProcessor() {
-		return item -> item;
+		return item -> {
+			System.out.println("Deleting Recommend: " + item.getId()); // 데이터 로깅
+			return item;
+		};
 	}
 
 	@Bean
