@@ -21,7 +21,7 @@ public class HardDeleteSchedule {
 	private final JobLauncher jobLauncher;
 	private final JobRegistry jobRegistry;
 
-	@Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
 	@SchedulerLock(name = "runUpdateMemberRankJob", lockAtMostFor = "30m", lockAtLeastFor = "20m")
 	public void runUpdateMemberRankJob() throws Exception {
 
