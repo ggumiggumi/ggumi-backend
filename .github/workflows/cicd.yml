@@ -1,4 +1,4 @@
-name: Auto deploy to NCP
+name: Auto deploy to AWS
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -65,3 +65,75 @@ jobs:
             sudo docker run -d -p 80:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ggumi
             sudo docker image prune -f
             echo "사용하지 않는 Docker image 정리"
+
+      - name: Configure AWS CLI
+        run: |
+          echo "Configuring AWS CLI"
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-northeast-2 # 지역 설정
+
+      - name: Test AWS CLI Configuration
+        run: |
+          echo "Testing AWS CLI Configurationn"
+          aws sts get-caller-identity
+
+      - name: Fetch Instance ID And
+        run: |
+          echo "Fetching Instance ID..."
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
+          echo "Raw Instance ID output: $INSTANCE_ID"
+
+          if [ -z "$INSTANCE_ID" ]; then
+            echo "Error: No instance found with the tag 'ggumi'."
+            exit 1
+          else
+            echo "Instance ID: $INSTANCE_ID"
+          fi
+          
+          echo "Creating AMI..."
+          IMAGE_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "ggumi-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text)
+          echo "Creating AMI with ID: $IMAGE_ID"
+          
+          echo "Waiting for the AMI to become available..."
+          aws ec2 wait image-available --image-ids $IMAGE_ID
+          echo "AMI $IMAGE_ID is now available."
+          
+          echo "Updating existing Launch Template with new AMI..."
+          CURRENT_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
+          LAUNCH_TEMPLATE_ID=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
+          LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $CURRENT_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
+          LAUNCH_TEMPLATE_VERSION_DATA=$(aws ec2 describe-launch-template-versions --launch-template-id $LAUNCH_TEMPLATE_ID --query 'LaunchTemplateVersions[?VersionNumber==`'$LAUNCH_TEMPLATE_VERSION_NUMBER'`]' --output json)
+          INSTANCE_TYPE=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.InstanceType')
+          KEY_NAME=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.KeyName')
+          SECURITY_GROUP_IDS=$(echo $LAUNCH_TEMPLATE_VERSION_DATA | jq -r '.[0].LaunchTemplateData.SecurityGroupIds | join(",")')
+
+          aws ec2 create-launch-template-version \
+            --launch-template-id $LAUNCH_TEMPLATE_ID \
+            --source-version $LAUNCH_TEMPLATE_VERSION_NUMBER \
+            --launch-template-data "{
+              \"ImageId\":\"$IMAGE_ID\",
+              \"InstanceType\":\"$INSTANCE_TYPE\",
+              \"KeyName\":\"$KEY_NAME\",
+              \"SecurityGroupIds\":[\"$SECURITY_GROUP_IDS\"]
+            }"
+          echo "Launch Template updated successfully."
+      - name: Fetch Instance ID And
+        run: |
+          LATEST_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
+          LATEST_LAUNCH_TEMPLATE_ID=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
+          LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
+          
+          echo "LATEST_LAUNCH_TEMPLATE: $LATEST_LAUNCH_TEMPLATE"
+          echo "LATEST_LAUNCH_TEMPLATE_ID: $LATEST_LAUNCH_TEMPLATE_ID"
+          echo "LATEST_LAUNCH_TEMPLATE_VERSION: $LATEST_LAUNCH_TEMPLATE_VERSION"
+          
+          echo "Updating Auto Scaling Group with new Launch Template version..."
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LATEST_LAUNCH_TEMPLATE_ID,Version=$LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER"
+          echo "Auto Scaling Group updated successfully."
+
+      - name: Start Instance Refresh
+        run: |
+          echo "Starting instance refresh for Auto Scaling Group..."
+          aws autoscaling start-instance-refresh --auto-scaling-group-name GgumiASG --strategy Rolling
+          echo "Instance refresh started successfully."
