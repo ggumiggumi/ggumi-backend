@@ -118,7 +118,7 @@ jobs:
               \"SecurityGroupIds\":[\"$SECURITY_GROUP_IDS\"]
             }"
           echo "Launch Template updated successfully."
-      - name: Fetch Instance ID And
+      - name: Updating Auto Scaling Group
         run: |
           LATEST_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           LATEST_LAUNCH_TEMPLATE_ID=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
