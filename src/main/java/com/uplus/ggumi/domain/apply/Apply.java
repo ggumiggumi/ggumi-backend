@@ -1,7 +1,9 @@
 package com.uplus.ggumi.domain.apply;
 
-import com.uplus.ggumi.domain.child.Child;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,4 +24,9 @@ public class Apply {
     private String phoneNumber;
     private Long applyTime;
 
+    public Apply(String name, String phoneNumber, Long applyTime) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.applyTime = applyTime;
+    }
 }
