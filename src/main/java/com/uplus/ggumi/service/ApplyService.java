@@ -29,7 +29,7 @@ public class ApplyService {
      * 응모 요청이 들어오면 MySQL에 바로 save()를 호출해 데이터 저장 */
     public String applyVer1(ApplyRequestDto requestDto) {
 
-        if (applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) return "FAILED";
+//        if (applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) return "FAILED";
 
         applyRepository.save(Apply.builder()
                 .name(requestDto.getName())

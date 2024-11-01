@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import javax.sql.DataSource;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,9 @@ public class DataDBConfig {
 	@ConfigurationProperties(prefix = "spring.datasource")
 	public DataSource dataDBSource() {
 
-		return DataSourceBuilder.create().build();
+		return DataSourceBuilder.create()
+				.type(HikariDataSource.class)
+				.build();
 	}
 
 	@Bean
