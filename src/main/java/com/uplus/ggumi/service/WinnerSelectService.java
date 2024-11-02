@@ -38,7 +38,7 @@ public class WinnerSelectService {
 		return winners.stream()
 			.map(winner -> winnerResponseDto.builder()
 				.name(maskName(winner.getName())) // 이름 마스킹 처리
-				.phoneNum(maskPhoneNum(winner.getPhoneNum())) // 전화번호 마지막 4자리 처리
+				.phoneNumber(maskPhoneNum(winner.getPhoneNum())) // 전화번호 마지막 4자리 처리
 				.build())
 			.collect(Collectors.toList());
 	}
@@ -82,5 +82,35 @@ public class WinnerSelectService {
 			.toList();
 
 		winnerRepository.saveAll(winners);
+	}
+
+	public List<winnerResponseDto> saveGetWinnerTest() {
+		// 현재 시간 기준으로 2시간 전 타임스탬프 계산
+		LocalDate today = LocalDate.now();
+		LocalTime twoHoursAgoTime = LocalTime.now().minusHours(2);
+		long startTime = today.atTime(twoHoursAgoTime).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+		// 2시간 전의 상위 100명 신청자 가져오기
+		List<Apply> selectedApplicants = applyRepository.findTop100AfterSpecificTime(startTime);
+
+		// Winner 엔티티로 변환하여 저장
+		List<Winner> winners = selectedApplicants.stream()
+			.map(apply -> Winner.builder()
+				.name(apply.getName())
+				.phoneNum(apply.getPhoneNumber())
+				.applyTime(apply.getApplyTime())
+				.build())
+			.toList();
+
+		// DB에 저장
+		winnerRepository.saveAll(winners);
+
+		// 저장된 당첨자를 winnerResponseDto 형태로 반환하여 테스트 확인
+		return winners.stream()
+			.map(winner -> winnerResponseDto.builder()
+				.name(maskName(winner.getName())) // 이름 마스킹 처리
+				.phoneNumber(maskPhoneNum(winner.getPhoneNum())) // 전화번호 마지막 4자리 처리
+				.build())
+			.collect(Collectors.toList());
 	}
 }

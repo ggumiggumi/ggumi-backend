@@ -33,4 +33,10 @@ public class WinnerController {
 	public void SaveTodayWinner() {
 		winnerSelectService.saveTodayWinner();
 	}
+
+	@GetMapping("/list/test")
+	public ResponseDto<List<winnerResponseDto>> getWinnerListTest() {
+		return ResponseUtil.SUCCESS("당첨자 조회를 성공하였습니다.",
+			winnerSelectService.saveGetWinnerTest());
+	}
 }
