@@ -138,6 +138,8 @@ public class BookService {
 
 		book.update(requestDto, bookImageUrl);
 
+		bookRepository.save(book);  // 변경된 내용을 저장
+
 		return book.getId();
 	}
 
