@@ -20,4 +20,5 @@ public class Winner {
 	private Long id;
 	private String name;
 	private String phoneNum;
+	private Long applyTime;
 }
