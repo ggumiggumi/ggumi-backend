@@ -1,7 +1,5 @@
 package com.uplus.ggumi.domain.winner;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,5 +20,4 @@ public class Winner {
 	private Long id;
 	private String name;
 	private String phoneNum;
-	private LocalDateTime submitTime;
 }
