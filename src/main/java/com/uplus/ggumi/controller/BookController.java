@@ -38,7 +38,7 @@ public class BookController {
 	@Operation(summary = "도서 정보 등록")
 	@PostMapping("")
 	public ResponseDto<Long> createBook(
-			@RequestBody BookManagementRequestDto requestDto) throws Exception {
+			@RequestPart BookManagementRequestDto requestDto, @RequestPart MultipartFile imageFile) throws Exception {
 		// GPT를 호출하여 MBTI 값 생성
 		String concatTitleAndContent = "책제목" + requestDto.getTitle() + "책 내용" + requestDto.getContent() + "제목이 더 중요하고 이 책의 MBTI필요해";
 		if (concatTitleAndContent.length() > 200) {
@@ -50,7 +50,8 @@ public class BookController {
 		requestDto = extractMBTIValues(gptResponse, requestDto);
 		// MBTI 값을 requestDto에 설정
 //		requestDto.setMbti(mbtiValue); // MBTI 값을 DTO에 추가하는 메서드 필요
-		return ResponseUtil.SUCCESS("도서 정보 등록에 성공하였습니다.", bookService.createBook(requestDto));
+
+		return ResponseUtil.SUCCESS("도서 정보 등록에 성공하였습니다.", bookService.createBook(requestDto, imageFile));
 	}
 
 	@Operation(summary = "도서 정보 수정")

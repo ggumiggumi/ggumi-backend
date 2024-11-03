@@ -113,8 +113,10 @@ public class BookService {
 	}
 
 	/** 도서 정보 등록 **/
-	public Long createBook(BookManagementRequestDto requestDto) {
+	public Long createBook(BookManagementRequestDto requestDto, MultipartFile bookImage) {
 
+		// S3에 이미지 업로드 (이미지 URL 생성)
+		String bookImageUrl = s3Service.uploadFile(bookImage);
 
 		// Book 엔티티 생성
 		Book book = Book.builder()
@@ -127,6 +129,7 @@ public class BookService {
 			.FT(requestDto.getFT())
 			.PJ(requestDto.getPJ())
 			.content(requestDto.getContent())
+			.book_image(bookImageUrl) // S3에서 생성된 이미지 URL
 			.build();
 		// gpt 응답에서 MBTI4개 강도 파싱
 
@@ -143,6 +146,8 @@ public class BookService {
 		String bookImageUrl = s3Service.updateFile(book.getBook_image(), bookImage);
 
 		book.update(requestDto, bookImageUrl);
+
+		bookRepository.save(book);
 
 		return book.getId();
 	}
