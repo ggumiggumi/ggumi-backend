@@ -31,6 +31,7 @@ public class BookService {
 
 	public static final int PAGE_SIZE = 4;
 	public static final int BOOK_MANAGEMENT_PAGE_SIZE = 10;
+	public static final int MAX_POPULAR_BOOKS = 16;
 
 	private final BookRepository bookRepository;
 	private final RecommendRepository recommendRepository;
@@ -85,23 +86,30 @@ public class BookService {
 
 	/* 좋아요 수 기준으로 정렬된 리스트 가져오는 메서드*/
 	public MainBookResponseDto getPopularBooks(int page) {
-		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
-		Page<BookDto> bookPage;
+		// 인기 도서 정보를 가져옴
+		List<Book> popularBooks = bookRepository.findTopPopularBooks(MAX_POPULAR_BOOKS);
 
-		bookPage = bookRepository.findAllByOrderByLikesDesc(pageable)
+		// 페이지 당 보여줄 도서 수
+		int startIndex = page * PAGE_SIZE;
+		int endIndex = Math.min(startIndex + PAGE_SIZE, popularBooks.size());
+
+		// 페이지에 맞게 도서 목록 생성, Book을 BookDto로 변환
+		List<BookDto> booksOnPage = popularBooks.subList(startIndex, endIndex).stream()
 			.map(book -> BookDto.builder()
 				.id(book.getId())
 				.title(book.getTitle())
 				.book_image(book.getBook_image())
-				.build());
+				.build())
+			.collect(Collectors.toList());
 
 		return MainBookResponseDto.builder()
-			.books(bookPage.getContent())
-			.number(bookPage.getNumber())
-			.size(bookPage.getSize())
-			.totalPages(bookPage.getTotalPages())
+			.books(booksOnPage)
+			.number(page)
+			.size(booksOnPage.size())
+			.totalPages((int)Math.ceil((double)popularBooks.size() / PAGE_SIZE)) // 총 페이지 수 계산
 			.build();
+
 	}
 
 	/** 도서 정보 등록 **/

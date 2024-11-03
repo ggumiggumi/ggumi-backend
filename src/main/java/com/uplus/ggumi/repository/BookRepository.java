@@ -31,6 +31,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 	Page<Book> findAllByOrderByLikesDesc(Pageable pageable);
 
+	// 좋아요 많은순, 최신 순으로 (limit)개의 도서 정보를 가져오는 메서드
+	@Query(value = "SELECT * FROM book ORDER BY likes DESC, id DESC LIMIT :limit", nativeQuery = true)
+	List<Book> findTopPopularBooks(@Param("limit") int limit);
+
 	@Query("SELECT b FROM Book b WHERE " +
 		"(b.EI BETWEEN :eiMin AND :eiMax) AND " +
 		"(b.FT BETWEEN :ftMin AND :ftMax) AND " +
