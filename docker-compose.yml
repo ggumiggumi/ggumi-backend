@@ -31,10 +31,10 @@ services:
       dockerfile: Dockerfile
     container_name: springboot_container
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_container:3306/ggumi
+      SPRING_DATASOURCE_URL=jdbc: mysql://mysql_container:3306/ggumi
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      SPRING_BATCH_DATASOURCE_URL: jdbc:mysql://mysql_container:3306/batch_meta
+      SPRING_BATCH_DATASOURCE_URL=jdbc: mysql://mysql_container:3306/batch_meta
       SPRING_BATCH_DATASOURCE_USERNAME: root
       SPRING_BATCH_DATASOURCE_PASSWORD: root
       SPRING_REDIS_HOST: redis_container
@@ -50,8 +50,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
-          memory: 1G
+          cpus: "2.0"
+          memory: 4G
 
   prometheus:
     image: "prom/prometheus:latest"
