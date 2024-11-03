@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Lob;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -38,6 +39,7 @@ public class BookManagementResponseDto {
 		@JsonProperty("PJ")
 		private double PJ;           // PJ 강도
 
+		@Lob
 		private String content;      // 줄거리
 		private String book_image;   // 책 이미지 경로
 	}
