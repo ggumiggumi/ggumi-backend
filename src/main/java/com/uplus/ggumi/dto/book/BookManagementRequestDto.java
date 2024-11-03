@@ -2,10 +2,12 @@ package com.uplus.ggumi.dto.book;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 
 @Getter
 @NoArgsConstructor
@@ -30,5 +32,22 @@ public class BookManagementRequestDto {
 	@JsonProperty("PJ")
 	private double PJ;         // PJ 강도
 
+	@Lob
 	private String content;    // 줄거리
+
+
+	public void updateEI(double EI) { // MBTI 값의 setter
+		this.EI = EI;
+	}
+
+	public void updateSN(double SN) {
+		this.SN = SN;
+	}
+	public void updateFT(double FT) {
+		this.FT = FT;
+	}
+	public void updatePJ(double PJ) {
+		this.PJ = PJ;
+	}
+
 }

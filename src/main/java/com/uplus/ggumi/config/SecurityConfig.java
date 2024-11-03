@@ -44,7 +44,7 @@ public class SecurityConfig {
 					config.setAllowedOrigins(Arrays.asList("https://ggumi.netlify.app","http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "http://13.125.110.207:8080", "https://hyodev.kr"));
 					config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 					config.setAllowCredentials(true);
-					config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type"));
+					config.setAllowedHeaders(Arrays.asList("Authorization", "Authorization-refresh", "Cache-Control", "Content-Type","X-Api-Key"));
 					config.setMaxAge(3600L);
 					return config;
 				}
