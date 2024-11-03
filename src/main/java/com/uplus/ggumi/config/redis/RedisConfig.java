@@ -51,7 +51,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-/*    @Bean
+    @Bean
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
                                                         MessageListenerAdapter messageListenerAdapter) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -63,5 +63,5 @@ public class RedisConfig {
     @Bean
     public MessageListenerAdapter messageListenerAdapter(ApplySubscriber applySubscriber) {
         return new MessageListenerAdapter(applySubscriber);
-    }*/
+    }
 }

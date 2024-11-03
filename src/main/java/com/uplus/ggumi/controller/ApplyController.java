@@ -39,5 +39,10 @@ public class ApplyController {
         return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer4(requestDto));
     }
 
+    @PostMapping("/ver5")
+    public ResponseDto<String> applyVer5(@RequestBody ApplyRequestDto requestDto) {
+        return ResponseUtil.SUCCESS("성공적으로 응모했습니다.", applyService.applyVer5(requestDto));
+    }
+
 
 }

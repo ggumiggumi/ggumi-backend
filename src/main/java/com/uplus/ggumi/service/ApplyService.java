@@ -6,6 +6,7 @@ import com.uplus.ggumi.dto.apply.ApplyRequestDto;
 import com.uplus.ggumi.repository.ApplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class ApplyService {
      * 응모 요청이 들어오면 MySQL에 바로 save()를 호출해 데이터 저장 */
     public String applyVer1(ApplyRequestDto requestDto) {
 
-        if (applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) return "FAILED";
+//        if (applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) return "FAILED";
 
         applyRepository.save(Apply.builder()
                 .name(requestDto.getName())
@@ -44,15 +45,6 @@ public class ApplyService {
      * Redis Pub/Sub 기능 추가
      * */
     public String applyVer2(ApplyRequestDto requestDto) {
-
-        String phoneNumber = requestDto.getPhoneNumber();
-
-        /* 중복 확인 */
-        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(APPLY, phoneNumber))) {
-            return "FAILED";
-        }
-
-        redisTemplate.opsForSet().add(APPLY, phoneNumber);
 
         try {
             /* ApplyRequestDto 객체를 JSON으로 변환하여 Redis 채널에 발행하며
@@ -85,6 +77,15 @@ public class ApplyService {
             log.error("응모 발행 중 오류 발생 : ", e);
             return "FAILED";
         }
+        return "SUCCESS";
+    }
+
+    public String applyVer5(ApplyRequestDto requestDto) {
+
+        redisTemplate.opsForStream().add(StreamRecords.newRecord()
+                .in("apply_stream")
+                .ofObject(requestDto));
+
         return "SUCCESS";
     }
 

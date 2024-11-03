@@ -1,56 +1,104 @@
 version: '3.8'
-
 services:
-  app:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - app_network
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d  # 초기 스크립트를 추가하여 데이터베이스 생성
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+  springboot:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: springboot_container
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_container:3306/ggumi
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_BATCH_DATASOURCE_URL: jdbc:mysql://mysql_container:3306/batch_meta
+      SPRING_BATCH_DATASOURCE_USERNAME: root
+      SPRING_BATCH_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis_container
+      SPRING_REDIS_PORT: 6379
     ports:
       - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/ggumi
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: Back0106!
-      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
-
-  redis:
-    image: "redis:latest"
-    container_name: "redis"
-    ports:
-      - "6379:6379"
-
-  redis-exporter:
-    image: "bitnami/redis-exporter:latest"
-    container_name: "redis-exporter"
-    environment:
-      - REDIS_ADDR=redis:6379
-    ports:
-      - "9121:9121"
+    networks:
+      - app_network
     depends_on:
-      - redis
+      mysql:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
 
   prometheus:
     image: "prom/prometheus:latest"
     container_name: "prometheus"
+    restart: always
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    depends_on:
-      - redis-exporter
+      - prometheus_data:/prometheus
+    networks:
+      - app_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
 
   grafana:
     image: "grafana/grafana:latest"
     container_name: "grafana"
+    restart: always
     ports:
       - "3000:3000"
     depends_on:
       - prometheus
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    networks:
+      - app_network
+
+  redis-exporter:
+    container_name: redis-exporter
+    image: oliver006/redis_exporter:latest
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - 9121:9121
+    networks:
+      - app_network
+
+networks:
+  app_network:
 
 volumes:
-  grafana-storage:
+  mysql_data:
+  grafana_data:
+  prometheus_data:

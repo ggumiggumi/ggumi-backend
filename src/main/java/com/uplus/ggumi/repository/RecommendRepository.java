@@ -20,4 +20,6 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 	@Modifying
 	@Query("UPDATE Recommend r SET r.isDeleted = true, r.deletedAt = :now WHERE r.child.id = :childId")
 	int markRecommendAsDeletedByChildId(@Param("childId") Long childId, @Param("now") LocalDateTime now);
+
+	Page<Recommend> findAllByIsDeletedAndDeletedAtBefore(boolean isDeleted, LocalDateTime deletedAt, Pageable pageable);
 }
