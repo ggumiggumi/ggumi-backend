@@ -82,13 +82,12 @@ jobs:
         run: |
           echo "Fetching Instance ID..."
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=ggumi" --query "Reservations[*].Instances[*].InstanceId" --output text | xargs)
-          echo "Raw Instance ID output: $INSTANCE_ID"
 
           if [ -z "$INSTANCE_ID" ]; then
             echo "Error: No instance found with the tag 'ggumi'."
             exit 1
           else
-            echo "Instance ID: $INSTANCE_ID"
+            echo "fetch Instance ID success"
           fi
           
           echo "Creating AMI..."
@@ -123,10 +122,6 @@ jobs:
           LATEST_LAUNCH_TEMPLATE=$(aws ec2 describe-launch-templates --launch-template-names GgumiServerTemplate --query 'LaunchTemplates[0]' --output json)
           LATEST_LAUNCH_TEMPLATE_ID=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LaunchTemplateId')
           LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER=$(echo $LATEST_LAUNCH_TEMPLATE | jq -r '.LatestVersionNumber')
-          
-          echo "LATEST_LAUNCH_TEMPLATE: $LATEST_LAUNCH_TEMPLATE"
-          echo "LATEST_LAUNCH_TEMPLATE_ID: $LATEST_LAUNCH_TEMPLATE_ID"
-          echo "LATEST_LAUNCH_TEMPLATE_VERSION: $LATEST_LAUNCH_TEMPLATE_VERSION"
           
           echo "Updating Auto Scaling Group with new Launch Template version..."
           aws autoscaling update-auto-scaling-group --auto-scaling-group-name GgumiASG --launch-template "LaunchTemplateId=$LATEST_LAUNCH_TEMPLATE_ID,Version=$LATEST_LAUNCH_TEMPLATE_VERSION_NUMBER"

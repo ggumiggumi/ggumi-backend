@@ -40,7 +40,12 @@ public class OAuthService {
 		if (parentRepository.notExistsAccountByEmailAndProvider(email, provider)) {
 			saveAccount(kakaoUserInfo, email);
 		}
-		return jwtTokenProvider.generateToken(getAuthentication(email, String.valueOf(provider)));
+
+		Role role = Role.USER;
+		if (email.equals("rhrudska987@daum.net")) {
+			role = Role.ADMIN;
+		}
+		return jwtTokenProvider.generateToken(getAuthentication(email, String.valueOf(provider)), role);
 	}
 
 	private void saveAccount(HashMap<String, Object> kakaoUserInfo, String email) {
@@ -63,7 +68,7 @@ public class OAuthService {
 		TokenAccountInfoDto.TokenInfo tokenInfoDto = jwtTokenProvider.extractTokenInfoFromJwt(refreshToken);
 		String email = tokenInfoDto.getEmail();
 		String provider = tokenInfoDto.getProvider();
-		return jwtTokenProvider.generateToken(getAuthentication(email, provider));
+		return jwtTokenProvider.generateToken(getAuthentication(email, provider), Role.USER);
 	}
 
 	private Authentication getAuthentication(String email, String provider) {
