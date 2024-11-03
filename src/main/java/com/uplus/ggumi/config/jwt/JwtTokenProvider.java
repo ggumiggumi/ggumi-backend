@@ -21,6 +21,7 @@ import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.parent.Parent;
 import com.uplus.ggumi.domain.parent.ParentDetails;
 import com.uplus.ggumi.domain.parent.Provider;
+import com.uplus.ggumi.domain.parent.Role;
 import com.uplus.ggumi.dto.token.TokenAccountInfoDto;
 import com.uplus.ggumi.dto.token.TokenInfoDto;
 import com.uplus.ggumi.repository.ParentRepository;
@@ -50,7 +51,7 @@ public class JwtTokenProvider {
 		this.parentRepository = parentRepository;
 	}
 
-	public TokenInfoDto generateToken(Authentication authentication) {
+	public TokenInfoDto generateToken(Authentication authentication, Role role) {
 		String accessToken = createToken(authentication, ACCESSTOKEN_EXPIRATION_TIME);
 		String refreshToken = createToken(authentication, REFRESHTOKEN_EXPIRATION_TIME);
 
@@ -58,6 +59,7 @@ public class JwtTokenProvider {
 			.grantType("Bearer")
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
+			.role(role)
 			.build();
 	}
 
