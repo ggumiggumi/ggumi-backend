@@ -192,8 +192,11 @@ public class BookDetailService implements BookDetailRepository {
 
 	/* 자녀 성향 점수가 변하는 시점에 추천 도서 목록을 업데이트 하는 메서드 */
 	private void updateRecommendBooks(History history) {
+/*
 
-		/* 1. MBTI의 오차범위 지정하고, 오차범위 내에 해당하는 책만 가져오기 */
+		*/
+/* 1. MBTI의 오차범위 지정하고, 오차범위 내에 해당하는 책만 가져오기 *//*
+
 		double range = 0.1;
 
 		double childEiMin = Math.max(0.0, history.getEI() - range);
@@ -210,7 +213,9 @@ public class BookDetailService implements BookDetailRepository {
 
 		List<Book> books = bookRepository.findBooksByMultipleRanges(childEiMin, childEiMax, childFtMin, childFtMax,
 			childPjMin, childPjMax, childSnMin, childSnMax);
+*/
 
+		List<Book> books = bookRepository.findAll();
 
 		/* 2. 자녀의 MBTI와 일치하는 MBTI를 가진 책 정보만 가져오기 */
 		/*List<Book> books = bookRepository.findBooksByMultipleAttributes(history.getEI(), history.getFT(),

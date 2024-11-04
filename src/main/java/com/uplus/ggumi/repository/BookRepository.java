@@ -35,6 +35,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 	@Query(value = "SELECT * FROM book ORDER BY likes DESC, id DESC LIMIT :limit", nativeQuery = true)
 	List<Book> findTopPopularBooks(@Param("limit") int limit);
 
+	List<Book> findAll();
+
 	@Query("SELECT b FROM Book b WHERE " +
 		"(b.EI BETWEEN :eiMin AND :eiMax) AND " +
 		"(b.FT BETWEEN :ftMin AND :ftMax) AND " +
