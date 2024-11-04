@@ -116,17 +116,16 @@ public class BookController {
 				// requestDto에 MBTI 값을 설정
 				switch (type) {
 					case "E":
-						requestDto.updateEI(score);
+						requestDto.updateEI(score/100.0);
 						break;
 					case "N":
-						requestDto.updateSN(score);
+						requestDto.updateSN(score/100.0);
 						break;
 					case "T":
-						requestDto.updateFT(score);
+						requestDto.updateFT(score/100.0);
 						break;
 					case "J":
-						requestDto.updatePJ(score);
-						break;
+						requestDto.updatePJ(score/100.0);
 				}
 			}
 		}

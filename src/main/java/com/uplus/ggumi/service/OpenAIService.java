@@ -89,7 +89,7 @@ public class OpenAIService {
         JSONArray choices = jsonResponse.getJSONArray("choices");
         // 첫 번째 선택지의 메시지에서 content 가져오기
         String content = choices.getJSONObject(0).getJSONObject("message").getString("content");
-
+        System.out.println("gpt 응답"+content);
         if (content.length() > 255) { // 칼럼의 최대 길이에 맞춰 설정
             content = content.substring(0, 255); // 255자로 자르기
         }
