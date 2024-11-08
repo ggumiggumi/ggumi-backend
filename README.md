@@ -1,5 +1,5 @@
 # 🐙ggumi-Server
-> ### LG UPlus Ureca Final Project
+> ### LG UPlus Ureca Team Project
 <br>
 
 ## 🎙️About
