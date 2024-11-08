@@ -23,7 +23,6 @@
 2. 작업 완료 후, 원격 develop 브랜치에 풀 리퀘스트(PR) 샹송
 3. 코드 리뷰 후, 리뷰어에 승인(Approve)받고 병합(Merge)
 4. 모든 팀원은 develop 브랜치에 변경 사항이 병합될 때마다 pull 받아 최신 상태 유지
-<br>
 
 ### 2) Git Convention
 | 커밋 타입  | 설명                                |
