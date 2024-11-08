@@ -7,7 +7,7 @@
 <br>
 
 ## 🛠️System Architecture
-<img src="https://github.com/user-attachments/assets/9298749f-8650-469a-8b67-c18b9ac0ac5d" alt="System Architecture" width="600"/>
+<img src="https://github.com/user-attachments/assets/1dc8f6b9-4cac-42c4-9a13-9bd8ddf35c38" alt="System Architecture" width="600"/>
 <br>
 
 ## 🔍ERD
