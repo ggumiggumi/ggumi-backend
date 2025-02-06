@@ -1,72 +1,82 @@
 package com.uplus.ggumi.domain.book;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.uplus.ggumi.domain.book_tag.BookTag;
+import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.feedback.Feedback;
 import com.uplus.ggumi.domain.global.BaseTimeEntity;
-import com.uplus.ggumi.dto.book.BookManagementRequestDto;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
+@NoArgsConstructor
 public class Book extends BaseTimeEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private double EI;
-	private double SN;
-	private double FT;
-	private double PJ;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Lob
-	private String content;
+    @Lob
+    @Column(nullable = false)
+    private String content;
 
-	private String book_image;
-	private String title;
-	private String author;
-	private String publisher;
-	private int likes;
-	private int recommend_age;
+    private String book_image;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "book")
-	private List<Feedback> feedbackList = new ArrayList<>();
+    @Column(nullable = false)
+    private String title;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "book")
-	private List<BookTag> bookTagList = new ArrayList<>();
+    @Embedded
+    private MbtiScore mbtiScore;
 
-	public void update(BookManagementRequestDto requestDto, String book_image_url) {
+    @Column(nullable = false)
+    private String author;
 
-		this.EI = requestDto.getEI();
-		this.SN = requestDto.getSN();
-		this.FT = requestDto.getFT();
-		this.PJ = requestDto.getPJ();
+    @Column(nullable = false)
+    private String publisher;
 
-		this.content = requestDto.getContent();
+    @Column(nullable = false)
+    private int likes;
 
-		this.title = requestDto.getTitle();
-		this.author = requestDto.getAuthor();
-		this.publisher = requestDto.getPublisher();
-		this.recommend_age = requestDto.getRecommend_age();
+    private int recommend_age;
 
-		this.book_image = book_image_url;
-	}
+    @OneToMany(mappedBy = "book")
+    private Set<Feedback> feedbackList = new HashSet<>();
 
+    @OneToMany(mappedBy = "book")
+    private List<BookTag> bookTagList = new ArrayList<>();
+
+    @Builder
+    private Book(String title, String content, String author, String publisher, int recommend_age, MbtiScore mbtiScore, String book_image) {
+        this.title = title;
+        this.author = author;
+        this.content = content;
+        this.publisher = publisher;
+        this.likes = 0;
+        this.recommend_age = recommend_age;
+        this.mbtiScore = mbtiScore;
+        this.book_image = book_image;
+    }
+
+    public void incrementLikes() {
+        this.likes++;
+    }
+
+    public void decrementLikes() {
+        if (this.likes > 0) {
+            this.likes--;
+        }
+    }
+
+    public boolean hasBeenLikedBy(Child child) {
+        return feedbackList.stream()
+                .anyMatch(feedback -> feedback.isLikedBy(child));
+    }
 }
+
