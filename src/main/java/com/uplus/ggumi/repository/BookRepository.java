@@ -1,10 +1,13 @@
 package com.uplus.ggumi.repository;
 
 import java.util.List;
+import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +20,7 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-	Book findBookById(Long bookId);
+	Optional<Book> findById(Long bookId);
 
 	List<Book> findByTitleContainingOrderByCreatedAt(String keyword);
 
@@ -38,10 +41,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 	List<Book> findAll();
 
 	@Query("SELECT b FROM Book b WHERE " +
-		"(b.EI BETWEEN :eiMin AND :eiMax) AND " +
-		"(b.FT BETWEEN :ftMin AND :ftMax) AND " +
-		"(b.PJ BETWEEN :pjMin AND :pjMax) AND " +
-		"(b.SN BETWEEN :snMin AND :snMax)")
+			"(b.EI BETWEEN :eiMin AND :eiMax) AND " +
+			"(b.FT BETWEEN :ftMin AND :ftMax) AND " +
+			"(b.PJ BETWEEN :pjMin AND :pjMax) AND " +
+			"(b.SN BETWEEN :snMin AND :snMax)")
 	List<Book> findBooksByMultipleRanges(
 		@Param("eiMin") double eiMin, @Param("eiMax") double eiMax,
 		@Param("ftMin") double ftMin, @Param("ftMax") double ftMax,
@@ -59,4 +62,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 		@Param("childPJ") double childPJ,
 		@Param("childSN") double childSN);
 
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT b FROM Book b WHERE b.id = :id")
+	Optional<Book> findByIdWithPessimisticLock(@Param("id") Long id);
 }
