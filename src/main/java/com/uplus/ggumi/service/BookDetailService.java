@@ -46,14 +46,10 @@ public class BookDetailService {
 
         /* 자녀가 해당 도서를 처음 방문했을 경우 새로운 피드백을 생성해준다. */
         Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId)
-                .orElseGet(() -> {
-                    Feedback newFeedback = Feedback.builder()
-                            .child(child)
-                            .book(book)
-                            .build();
-                    feedbackRepository.save(newFeedback);
-                    return newFeedback;
-                });
+                .orElseGet(() -> feedbackRepository.save(Feedback.builder()
+                        .child(child)
+                        .book(book)
+                        .build()));
 
         /* 도서 상세 페이지에 필요한 데이터 */
         return BookDetailResponseDto.builder()
@@ -82,7 +78,6 @@ public class BookDetailService {
 
         feedback.updateThumbs(Thumbs.UP);
         book.incrementLikes();
-        calculateChildScoreWithBookScoreWhenClickLike(bookId, childId);
         bookRepository.save(book);
 
         return 1L;
@@ -141,7 +136,7 @@ public class BookDetailService {
 
         feedback.updateThumbs(Thumbs.UNCHECKED);
         bookRepository.save(book);
-        
+
         return 1L;
     }
 

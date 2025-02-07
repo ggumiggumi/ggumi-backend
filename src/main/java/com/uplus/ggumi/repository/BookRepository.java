@@ -40,28 +40,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 	List<Book> findAll();
 
-	@Query("SELECT b FROM Book b WHERE " +
-			"(b.EI BETWEEN :eiMin AND :eiMax) AND " +
-			"(b.FT BETWEEN :ftMin AND :ftMax) AND " +
-			"(b.PJ BETWEEN :pjMin AND :pjMax) AND " +
-			"(b.SN BETWEEN :snMin AND :snMax)")
-	List<Book> findBooksByMultipleRanges(
-		@Param("eiMin") double eiMin, @Param("eiMax") double eiMax,
-		@Param("ftMin") double ftMin, @Param("ftMax") double ftMax,
-		@Param("pjMin") double pjMin, @Param("pjMax") double pjMax,
-		@Param("snMin") double snMin, @Param("snMax") double snMax);
-
-	@Query("SELECT b FROM Book b WHERE " +
-		"((b.EI >= 0.5 AND :childEI >= 0.5) OR (b.EI < 0.5 AND :childEI < 0.5)) " +
-		"AND ((b.FT >= 0.5 AND :childFT >= 0.5) OR (b.FT < 0.5 AND :childFT < 0.5)) " +
-		"AND ((b.PJ >= 0.5 AND :childPJ >= 0.5) OR (b.PJ < 0.5 AND :childPJ < 0.5)) " +
-		"AND ((b.SN >= 0.5 AND :childSN >= 0.5) OR (b.SN < 0.5 AND :childSN < 0.5))")
-	List<Book> findBooksByMultipleAttributes(
-		@Param("childEI") double childEI,
-		@Param("childFT") double childFT,
-		@Param("childPJ") double childPJ,
-		@Param("childSN") double childSN);
-
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT b FROM Book b WHERE b.id = :id")
 	Optional<Book> findByIdWithPessimisticLock(@Param("id") Long id);

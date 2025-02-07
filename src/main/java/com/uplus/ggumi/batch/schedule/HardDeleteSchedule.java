@@ -1,3 +1,4 @@
+/*
 package com.uplus.ggumi.batch.schedule;
 
 import java.text.SimpleDateFormat;
@@ -36,3 +37,4 @@ public class HardDeleteSchedule {
 		jobLauncher.run(jobRegistry.getJob("hardDeletePersonalInfoJob"), jobParameters);
 	}
 }
+*/
