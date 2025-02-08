@@ -1,18 +1,9 @@
 package com.uplus.ggumi.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.uplus.ggumi.config.exception.ApiException;
 import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.book.Book;
+import com.uplus.ggumi.domain.book.MbtiScore;
 import com.uplus.ggumi.dto.book.BookManagementRequestDto;
 import com.uplus.ggumi.dto.book.BookManagementResponseDto;
 import com.uplus.ggumi.dto.book.BookResponseDto;
@@ -21,199 +12,213 @@ import com.uplus.ggumi.dto.book.MainBookResponseDto.BookDto;
 import com.uplus.ggumi.repository.BookRepository;
 import com.uplus.ggumi.repository.HistoryRepository;
 import com.uplus.ggumi.repository.RecommendRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class BookService {
 
-	public static final int PAGE_SIZE = 4;
-	public static final int BOOK_MANAGEMENT_PAGE_SIZE = 10;
-	public static final int MAX_POPULAR_BOOKS = 16;
+    public static final int PAGE_SIZE = 4;
+    public static final int BOOK_MANAGEMENT_PAGE_SIZE = 10;
+    public static final int MAX_POPULAR_BOOKS = 16;
 
-	private final BookRepository bookRepository;
-	private final RecommendRepository recommendRepository;
-	private final HistoryRepository historyRepository;
+    private final BookRepository bookRepository;
+    private final RecommendRepository recommendRepository;
+    private final HistoryRepository historyRepository;
 
-	private final S3Service s3Service;
+    private final S3Service s3Service;
 
-	public BookResponseDto search(String keyword) {
-		List<Book> bookList = bookRepository.findByTitleContainingOrderByCreatedAt(keyword);
-		List<BookResponseDto.SearchResult> searchResultList = bookList.stream()
-			.map(book -> BookResponseDto.SearchResult.builder()
-				.bookImage(book.getBook_image())
-				.title(book.getTitle())
-				.author(book.getAuthor())
-				.publisher(book.getPublisher())
-				.createdAt(book.getCreatedAt())
-				.build())
-			.collect(Collectors.toList());
-		return BookResponseDto.builder().totalResultCount(bookList.size()).searchResultList(searchResultList).build();
-	}
+    public BookResponseDto search(String keyword) {
+        List<Book> bookList = bookRepository.findByTitleContainingOrderByCreatedAt(keyword);
+        List<BookResponseDto.SearchResult> searchResultList = bookList.stream()
+                .map(book -> BookResponseDto.SearchResult.builder()
+                        .bookImage(book.getBook_image())
+                        .title(book.getTitle())
+                        .author(book.getAuthor())
+                        .publisher(book.getPublisher())
+                        .createdAt(book.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+        return BookResponseDto.builder().totalResultCount(bookList.size()).searchResultList(searchResultList).build();
+    }
 
-	/* 메인 페이지에서 MBTI 검사 여부에 따른 추천 도서 또는 최근 도서 페이징 조회 */
-	public MainBookResponseDto getBooks(Long childId, int page) {
-		Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+    /* 메인 페이지에서 MBTI 검사 여부에 따른 추천 도서 또는 최근 도서 페이징 조회 */
+    public MainBookResponseDto getBooks(Long childId, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
-		boolean hasHistory = historyRepository.existsByChildId(childId);
+        boolean hasHistory = historyRepository.existsByChildId(childId);
 
-		Page<BookDto> bookPage;
-		if (hasHistory) {
-			bookPage = recommendRepository.findByChildId(childId, pageable)
-				.map(recommend -> BookDto.builder()
-					.id(recommend.getBook().getId())
-					.title(recommend.getBook().getTitle())
-					.book_image(recommend.getBook().getBook_image())
-					.build());
-		} else {
-			bookPage = bookRepository.findLatestBooks(pageable)
-				.map(book -> BookDto.builder()
-					.id(book.getId())
-					.title(book.getTitle())
-					.book_image(book.getBook_image())
-					.build());
-		}
+        Page<BookDto> bookPage;
+        if (hasHistory) {
+            bookPage = recommendRepository.findByChildId(childId, pageable)
+                    .map(recommend -> BookDto.builder()
+                            .id(recommend.getBook().getId())
+                            .title(recommend.getBook().getTitle())
+                            .book_image(recommend.getBook().getBook_image())
+                            .build());
+        } else {
+            bookPage = bookRepository.findLatestBooks(pageable)
+                    .map(book -> BookDto.builder()
+                            .id(book.getId())
+                            .title(book.getTitle())
+                            .book_image(book.getBook_image())
+                            .build());
+        }
 
-		return MainBookResponseDto.builder()
-			.books(bookPage.getContent())
-			.number(bookPage.getNumber())
-			.size(bookPage.getSize())
-			.totalPages(bookPage.getTotalPages())
-			.build();
-	}
+        return MainBookResponseDto.builder()
+                .books(bookPage.getContent())
+                .number(bookPage.getNumber())
+                .size(bookPage.getSize())
+                .totalPages(bookPage.getTotalPages())
+                .build();
+    }
 
-	/* 좋아요 수 기준으로 정렬된 리스트 가져오는 메서드*/
-	public MainBookResponseDto getPopularBooks(int page) {
+    /* 좋아요 수 기준으로 정렬된 리스트 가져오는 메서드*/
+    public MainBookResponseDto getPopularBooks(int page) {
 
-		// 인기 도서 정보를 가져옴
-		List<Book> popularBooks = bookRepository.findTopPopularBooks(MAX_POPULAR_BOOKS);
+        // 인기 도서 정보를 가져옴
+        List<Book> popularBooks = bookRepository.findTopPopularBooks(MAX_POPULAR_BOOKS);
 
-		// 페이지 당 보여줄 도서 수
-		int startIndex = page * PAGE_SIZE;
-		int endIndex = Math.min(startIndex + PAGE_SIZE, popularBooks.size());
+        // 페이지 당 보여줄 도서 수
+        int startIndex = page * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, popularBooks.size());
 
-		// 페이지에 맞게 도서 목록 생성, Book을 BookDto로 변환
-		List<BookDto> booksOnPage = popularBooks.subList(startIndex, endIndex).stream()
-			.map(book -> BookDto.builder()
-				.id(book.getId())
-				.title(book.getTitle())
-				.book_image(book.getBook_image())
-				.build())
-			.collect(Collectors.toList());
+        // 페이지에 맞게 도서 목록 생성, Book을 BookDto로 변환
+        List<BookDto> booksOnPage = popularBooks.subList(startIndex, endIndex).stream()
+                .map(book -> BookDto.builder()
+                        .id(book.getId())
+                        .title(book.getTitle())
+                        .book_image(book.getBook_image())
+                        .build())
+                .collect(Collectors.toList());
 
-		return MainBookResponseDto.builder()
-			.books(booksOnPage)
-			.number(page)
-			.size(booksOnPage.size())
-			.totalPages((int)Math.ceil((double)popularBooks.size() / PAGE_SIZE)) // 총 페이지 수 계산
-			.build();
+        return MainBookResponseDto.builder()
+                .books(booksOnPage)
+                .number(page)
+                .size(booksOnPage.size())
+                .totalPages((int) Math.ceil((double) popularBooks.size() / PAGE_SIZE)) // 총 페이지 수 계산
+                .build();
 
-	}
+    }
 
-	/** 도서 정보 등록 **/
-	public Long createBook(BookManagementRequestDto requestDto, MultipartFile bookImage) {
+    /**
+     * 도서 정보 등록
+     **/
+    public Long createBook(BookManagementRequestDto requestDto, MultipartFile bookImage) {
 
-		// S3에 이미지 업로드 (이미지 URL 생성)
-		String bookImageUrl = s3Service.uploadFile(bookImage);
+        // S3에 이미지 업로드 (이미지 URL 생성)
+        String bookImageUrl = s3Service.uploadFile(bookImage);
 
-		// Book 엔티티 생성
-		Book book = Book.builder()
-			.title(requestDto.getTitle())
-			.author(requestDto.getAuthor())
-			.publisher(requestDto.getPublisher())
-			.recommend_age(requestDto.getRecommend_age())
-			.EI(requestDto.getEI())
-			.SN(requestDto.getSN())
-			.FT(requestDto.getFT())
-			.PJ(requestDto.getPJ())
-			.content(requestDto.getContent())
-			.book_image(bookImageUrl) // S3에서 생성된 이미지 URL
-			.build();
-		// gpt 응답에서 MBTI4개 강도 파싱
+        MbtiScore mbtiScore = MbtiScore.builder()
+                .EI(requestDto.getEI())
+                .SN(requestDto.getSN())
+                .PJ(requestDto.getPJ())
+                .FT(requestDto.getFT())
+                .build();
 
-		return bookRepository.save(book).getId();
-	}
+        // Book 엔티티 생성
+        Book book = Book.builder()
+                .title(requestDto.getTitle())
+                .author(requestDto.getAuthor())
+                .publisher(requestDto.getPublisher())
+                .recommend_age(requestDto.getRecommend_age())
+                .mbtiScore(mbtiScore)
+                .content(requestDto.getContent())
+                .book_image(bookImageUrl) // S3에서 생성된 이미지 URL
+                .build();
+        // gpt 응답에서 MBTI4개 강도 파싱
 
-	/** 도서 정보 수정 **/
-	public Long updateBook(Long bookId, BookManagementRequestDto requestDto, MultipartFile bookImage) {
+        return bookRepository.save(book).getId();
+    }
 
-		Book book = bookRepository.findById(bookId)
-			.orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
+    /**
+     * 도서 정보 수정
+     **/
+    public Long updateBook(Long bookId, BookManagementRequestDto requestDto, MultipartFile bookImage) {
 
-		// S3 책 이미지 갱신하기
-		String bookImageUrl = s3Service.updateFile(book.getBook_image(), bookImage);
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
-		book.update(requestDto, bookImageUrl);
+        // S3 책 이미지 갱신하기
+        String bookImageUrl = s3Service.updateFile(book.getBook_image(), bookImage);
 
-		bookRepository.save(book);
+//        book.update(requestDto, bookImageUrl);
 
-		return book.getId();
-	}
+        bookRepository.save(book);
 
-	/** 도서 정보 삭제 **/
-	public Long deleteBook(Long bookId) {
+        return book.getId();
+    }
 
-		Book book = bookRepository.findById(bookId)
-			.orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
+    /**
+     * 도서 정보 삭제
+     **/
+    public Long deleteBook(Long bookId) {
 
-		// S3 책 이미지 삭제하기
-		s3Service.deleteFile(book.getBook_image());
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
-		bookRepository.delete(book);
+        // S3 책 이미지 삭제하기
+        s3Service.deleteFile(book.getBook_image());
 
-		return book.getId();
-	}
+        bookRepository.delete(book);
 
-	/** 특정 도서 정보 반환 **/
-	public BookManagementResponseDto.BookDto getBook(Long bookId) {
-		Book book = bookRepository.findById(bookId)
-			.orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
+        return book.getId();
+    }
 
-		return BookManagementResponseDto.BookDto.builder()
-			.id(book.getId())
-			.title(book.getTitle())
-			.author(book.getAuthor())
-			.publisher(book.getPublisher())
-			.recommend_age(book.getRecommend_age())
-			.EI(book.getEI())
-			.SN(book.getSN())
-			.FT(book.getFT())
-			.PJ(book.getPJ())
-			.content(book.getContent())
-			.book_image(book.getBook_image())
-			.build();
+    /**
+     * 특정 도서 정보 반환
+     **/
+    public BookManagementResponseDto.BookDto getBook(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
-	}
+        return BookManagementResponseDto.BookDto.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .publisher(book.getPublisher())
+                .recommend_age(book.getRecommend_age())
+                .mbtiScore(book.getMbtiScore())
+                .content(book.getContent())
+                .book_image(book.getBook_image())
+                .build();
 
-	public BookManagementResponseDto getBookList(int page) {
+    }
 
-		Pageable pageable = PageRequest.of(page, BOOK_MANAGEMENT_PAGE_SIZE);
+    public BookManagementResponseDto getBookList(int page) {
 
-		Page<BookManagementResponseDto.BookDto> bookPage;
+        Pageable pageable = PageRequest.of(page, BOOK_MANAGEMENT_PAGE_SIZE);
 
-		bookPage = bookRepository.findAll(pageable)
-			.map(book -> BookManagementResponseDto.BookDto.builder()
-				.id(book.getId())
-				.title(book.getTitle())
-				.author(book.getAuthor())
-				.publisher(book.getPublisher())
-				.recommend_age(book.getRecommend_age())
-				.EI(book.getEI())
-				.SN(book.getSN())
-				.FT(book.getFT())
-				.PJ(book.getPJ())
-				.content(book.getContent())
-				.book_image(book.getBook_image())
-				.build());
+        Page<BookManagementResponseDto.BookDto> bookPage;
 
-		return BookManagementResponseDto.builder()
-			.books(bookPage.getContent())
-			.number(bookPage.getNumber())
-			.size(bookPage.getSize())
-			.totalPages(bookPage.getTotalPages())
-			.build();
-	}
+        bookPage = bookRepository.findAll(pageable)
+                .map(book -> BookManagementResponseDto.BookDto.builder()
+                        .id(book.getId())
+                        .title(book.getTitle())
+                        .author(book.getAuthor())
+                        .publisher(book.getPublisher())
+                        .recommend_age(book.getRecommend_age())
+                        .mbtiScore(book.getMbtiScore())
+                        .content(book.getContent())
+                        .book_image(book.getBook_image())
+                        .build());
+
+        return BookManagementResponseDto.builder()
+                .books(bookPage.getContent())
+                .number(bookPage.getNumber())
+                .size(bookPage.getSize())
+                .totalPages(bookPage.getTotalPages())
+                .build();
+    }
 
 }

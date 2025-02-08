@@ -1,3 +1,4 @@
+/*
 package com.uplus.ggumi.config.dataSource;
 
 import javax.sql.DataSource;
@@ -29,3 +30,4 @@ public class MetaDBConfig {
 	}
 
 }
+*/

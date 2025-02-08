@@ -1,3 +1,4 @@
+/*
 package com.uplus.ggumi.config.dataSource;
 
 import java.util.HashMap;
@@ -60,4 +61,4 @@ public class DataDBConfig {
 
 		return transactionManager;
 	}
-}
+}*/

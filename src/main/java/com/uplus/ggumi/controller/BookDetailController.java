@@ -27,32 +27,22 @@ public class BookDetailController {
 
     @PostMapping("/{bookId}/like")
     public ResponseDto<Long> clickLikeBook(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("좋아요를 눌렀습니다.", bookDetailService.setLike(bookId, request.get("childId")));
+        return ResponseUtil.SUCCESS("좋아요를 눌렀습니다.", bookDetailService.updateLike(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/hate")
     public ResponseDto<Long> clickHateBook(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("싫어요를 눌렀습니다.", bookDetailService.setHate(bookId, request.get("childId")));
+        return ResponseUtil.SUCCESS("싫어요를 눌렀습니다.", bookDetailService.updateHate(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/undo-like")
     public ResponseDto<Long> undoLike(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("좋아요를 취소했습니다.", bookDetailService.undoLike(bookId, request.get("childId")));
+        return ResponseUtil.SUCCESS("좋아요를 취소했습니다.", bookDetailService.cancelLike(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/undo-hate")
     public ResponseDto<Long> undoHate(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("싫어요를 취소했습니다.", bookDetailService.undoHate(bookId, request.get("childId")));
-    }
-
-    @PostMapping("/{bookId}/calculation-like")
-    public ResponseDto<Long> calculationWhenClickLike(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("책의 점수를 기반으로 점수를 계산합니다.", bookDetailService.calculateChildScoreWithBookScoreWhenClickLike(bookId, request.get("childId")));
-    }
-
-    @PostMapping("/{bookId}/calculation-hate")
-    public ResponseDto<Long> calculationWhenClickHate(@PathVariable Long bookId, @RequestBody Map<String, Long> request) {
-        return ResponseUtil.SUCCESS("책의 점수를 기반으로 점수를 계산합니다.", bookDetailService.calculateChildScoreWithBookScoreWhenClickHate(bookId, request.get("childId")));
+        return ResponseUtil.SUCCESS("싫어요를 취소했습니다.", bookDetailService.cancelHate(bookId, request.get("childId")));
     }
 
     @PostMapping("/{bookId}/feedback")

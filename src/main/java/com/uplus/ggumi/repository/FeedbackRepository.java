@@ -1,6 +1,7 @@
 package com.uplus.ggumi.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -23,4 +24,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 	int markFeedbackAsDeletedByChildId(@Param("childId") Long childId, @Param("now") LocalDateTime now);
 
 	Page<Feedback> findAllByIsDeletedAndDeletedAtBefore(boolean isDeleted, LocalDateTime deletedAt, Pageable pageable);
+
+	List<Feedback> findByBookId(Long id);
 }

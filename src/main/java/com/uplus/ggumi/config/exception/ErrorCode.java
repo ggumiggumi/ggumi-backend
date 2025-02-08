@@ -32,12 +32,16 @@ public enum ErrorCode {
 	HISTORY_NOT_EXIST(500, "조건에 맞는 history 정보가 없습니다.", 1301),
 
 	FEEDBACK_NOT_EXIST(500, "해당하는 피드백 정보가 없습니다.", 1401),
+	ALREADY_LIKED(500, "이미 좋아요를 눌렀습니다.", 1402),
+	ALREADY_HATE(500, "이미 싫어요를 눌렀습니다.", 1403),
+	NOT_LIKED(500, "좋아요인 상태에서만 좋아요를 취소할 수 있습니다.", 1404),
+	NOT_HATED(500, "싫어요인 상태에서만 싫어요를 취소할 수 있습니다.", 1405),
 
 	S3_UPLOAD_FAILED(500, "S3에 파일 업로드 실패했습니다.", 1501),
 	S3_UPDATE_FAILED(500, "S3에 파일 갱신에 실패했습니다.", 1502),
 	S3_DELETE_FAILED(500, "S3에 파일 삭재에 실패했습니다.", 1503),
 
-	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601);
+	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601), ;
 
 	private final int status;
 	private final String message;
