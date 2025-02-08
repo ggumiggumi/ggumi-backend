@@ -85,7 +85,7 @@ public class BookDetailService {
 
     @Transactional
     public Long updateHate(Long bookId, Long childId) {
-        Book book = bookRepository.findById(bookId)
+        Book book = bookRepository.findByIdWithPessimisticLock(bookId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
         Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId)
@@ -105,7 +105,7 @@ public class BookDetailService {
 
     @Transactional
     public Long cancelLike(Long bookId, Long childId) {
-        Book book = bookRepository.findById(bookId)
+        Book book = bookRepository.findByIdWithPessimisticLock(bookId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
         Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId)
@@ -124,7 +124,7 @@ public class BookDetailService {
 
     @Transactional
     public Long cancelHate(Long bookId, Long childId) {
-        Book book = bookRepository.findById(bookId)
+        Book book = bookRepository.findByIdWithPessimisticLock(bookId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
         Feedback feedback = feedbackRepository.findByBookIdAndChildId(bookId, childId)
@@ -144,7 +144,7 @@ public class BookDetailService {
     private void calculateChildScoreWithBookScoreWhenClickLike(Long bookId, Long childId) {
 
         /* 점수 계산을 위한 해당 책의 정보와 자녀의 최근 점수 정보를 가져옴 */
-        Book book = bookRepository.findById(bookId)
+        Book book = bookRepository.findByIdWithPessimisticLock(bookId)
                 .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_EXIST));
 
         History history = historyRepository.findTopByChildIdOrderByCreatedAtDesc(childId);

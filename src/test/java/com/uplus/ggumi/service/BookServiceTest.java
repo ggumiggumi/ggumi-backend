@@ -3,6 +3,7 @@ package com.uplus.ggumi.service;
 import com.uplus.ggumi.domain.book.Book;
 import com.uplus.ggumi.domain.child.Child;
 import com.uplus.ggumi.domain.feedback.Feedback;
+import com.uplus.ggumi.domain.feedback.Thumbs;
 import com.uplus.ggumi.domain.parent.Parent;
 import com.uplus.ggumi.repository.BookRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -79,16 +80,35 @@ class BookServiceTest extends CreateDomain {
         assertThat(updatedBook.getLikes()).isEqualTo(numberOfThreads);
     }
 
-    /*@Test
+    @Test
     @DisplayName("동시에 좋아요/싫어요를 눌러도 정확한 좋아요 수가 유지되어야 한다")
     void concurrentLikeAndHateTest() throws InterruptedException {
         // given
+        Book book = createBook("Test Book");
+        Parent parent = createParent("Test Parent");
+
         int numberOfThreads = 10;
+        List<Child> children = new ArrayList<>();
+        List<Feedback> feedbacks = new ArrayList<>();
+
+        // 데이터 초기화 및 영속화
+        for (int i = 0; i < numberOfThreads; i++) {
+            Child child = createChild("Child" + i, parent);
+            children.add(child);
+
+            Feedback feedback = createFeedback(child, book);
+            feedbacks.add(feedback);
+        }
+
+        // 모든 데이터가 DB에 반영되도록 명시적으로 플러시
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
+        // 새로운 트랜잭션 시작
+        TestTransaction.start();
+
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
-
-        Book book = createBook();
-        List<Child> children = createChild(numberOfThreads);
 
         // when
         for (int i = 0; i < numberOfThreads; i++) {
@@ -111,13 +131,13 @@ class BookServiceTest extends CreateDomain {
 
         // then
         Book updatedBook = bookRepository.findById(book.getId()).orElseThrow();
-        List<Feedback> feedbacks = feedbackRepository.findByBookId(book.getId());
+        List<Feedback> updatedFeedbacks = feedbackRepository.findByBookId(book.getId());
 
-        long likeCount = feedbacks.stream()
+        long likeCount = updatedFeedbacks.stream()
                 .filter(f -> f.getThumbs() == Thumbs.UP)
                 .count();
 
         assertThat(updatedBook.getLikes()).isEqualTo(likeCount);
-    }*/
+    }
 
 }
