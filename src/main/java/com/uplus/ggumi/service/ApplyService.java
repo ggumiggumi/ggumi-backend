@@ -1,44 +1,53 @@
 package com.uplus.ggumi.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uplus.ggumi.config.exception.ApiException;
+import com.uplus.ggumi.config.exception.ErrorCode;
 import com.uplus.ggumi.domain.apply.Apply;
 import com.uplus.ggumi.dto.apply.ApplyRequestDto;
 import com.uplus.ggumi.repository.ApplyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.stream.StreamRecords;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ApplyService {
 
-    public static final String APPLY = "apply";
-    public static final String APPLY_CHANNEL = "applyChannel";
-    public static final String APPLY_QUEUE = "applyQueue";
+    private static final long MAX_WINNERS = 100;
+
     private final ApplyRepository applyRepository;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
+    /* 1단계 기본 Spring Boot + MySQL을 사용한 단일 모듈 구조 */
+    @Transactional
+    public String apply(ApplyRequestDto requestDto) {
 
-    /* 1단계 기본 Spring Boot + MySQL을 사용한 단일 모듈 구조
-     * 응모 요청이 들어오면 MySQL에 바로 save()를 호출해 데이터 저장 */
-    public String applyVer1(ApplyRequestDto requestDto) {
+        /* 1. 중복 응모 체크 */
+        if (applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber())) {
+            throw new ApiException(ErrorCode.DUPLICATE_APPLY);
+        }
 
-        applyRepository.existsByPhoneNumber(requestDto.getPhoneNumber());
+        /* 2. 현재 응모자 수 확인 */
+        long currentApplicants = applyRepository.countWithPessimisticLock();
+        if (currentApplicants >= MAX_WINNERS) {
+            throw new ApiException(ErrorCode.APPLY_LIMIT_EXCEEDED);
+        }
 
-        applyRepository.save(Apply.builder().name(requestDto.getName()).phoneNumber(requestDto.getPhoneNumber()).applyTime(requestDto.getApplyTime()).build());
+        /* 3. 응모 정보 저장 */
+        try {
+            applyRepository.save(Apply.builder()
+                    .name(requestDto.getName())
+                    .phoneNumber(requestDto.getPhoneNumber())
+                    .applyTime(requestDto.getApplyTime())
+                    .build());
 
-        return "SUCCESS";
-    }
+            return "SUCCESS";
 
-    public String applyVer5(ApplyRequestDto requestDto) {
-
-        redisTemplate.opsForStream().add(StreamRecords.newRecord().in("apply_stream").ofObject(requestDto));
-
-        return "SUCCESS";
+        } catch (Exception e) {
+            log.error("Failed to save apply: {}", e.getMessage());
+            throw new ApiException(ErrorCode.APPLY_FAILED);
+        }
     }
 
 }

@@ -41,7 +41,11 @@ public enum ErrorCode {
 	S3_UPDATE_FAILED(500, "S3에 파일 갱신에 실패했습니다.", 1502),
 	S3_DELETE_FAILED(500, "S3에 파일 삭재에 실패했습니다.", 1503),
 
-	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601), ;
+	BOOK_NOT_EXIST(500, "도서 정보 찾기를 실패했습니다.", 1601),
+
+	DUPLICATE_APPLY(500, "이미 응모 완료했습니다.", 1701),
+	APPLY_LIMIT_EXCEEDED(500, "남은 응모가 없습니다.", 1702),
+	APPLY_FAILED(500, "응모를 실패했습니다.", 1703);
 
 	private final int status;
 	private final String message;
