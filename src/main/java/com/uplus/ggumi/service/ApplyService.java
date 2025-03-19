@@ -18,6 +18,7 @@ public class ApplyService {
     private static final long MAX_WINNERS = 100;
 
     private final ApplyRepository applyRepository;
+    private final ApplyPublisherService publisherService;
 
     /* 1단계 기본 Spring Boot + MySQL을 사용한 단일 모듈 구조 */
     @Transactional
@@ -48,6 +49,10 @@ public class ApplyService {
             log.error("Failed to save apply: {}", e.getMessage());
             throw new ApiException(ErrorCode.APPLY_FAILED);
         }
+    }
+
+    public String applyWithRedis(ApplyRequestDto requestDto) {
+        return publisherService.publishApply(requestDto);
     }
 
 }
