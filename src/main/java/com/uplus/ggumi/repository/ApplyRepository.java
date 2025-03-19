@@ -13,14 +13,8 @@ import java.util.List;
 @Repository
 public interface ApplyRepository extends JpaRepository<Apply, Long> {
 
-    boolean existsByPhoneNumber(String phoneNumber);
-
-    @Query(value = "SELECT COUNT(*) FROM apply FOR UPDATE", nativeQuery = true)
-    long countWithPessimisticLock();
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT COUNT (a) FROM Apply a")
-    long countWithLock();
+    boolean existsByPhoneNumber(String phoneNumber);
 
     @Query(value =
             "SELECT * FROM apply " +

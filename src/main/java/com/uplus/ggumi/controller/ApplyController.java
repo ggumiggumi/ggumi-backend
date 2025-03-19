@@ -24,8 +24,4 @@ public class ApplyController {
         return ResponseUtil.SUCCESS("성공적으로 응모 요청을 받았습니다.", applyService.apply(requestDto));
     }
 
-    @PostMapping("/ver2")
-    public ResponseDto<String> applyWithRedis(@RequestBody ApplyRequestDto requestDto) {
-        return ResponseUtil.SUCCESS("성공적으로 응모 요청을 받았습니다.", applyService.applyWithRedis(requestDto));
-    }
 }
