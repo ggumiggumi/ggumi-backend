@@ -69,7 +69,6 @@ public class ApplyMessageListener implements MessageListener {
             Apply apply = Apply.builder()
                     .name(requestDto.getName())
                     .phoneNumber(requestDto.getPhoneNumber())
-                    .applyTime(requestDto.getApplyTime())
                     .build();
 
             applyRepository.save(apply);
