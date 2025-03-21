@@ -26,6 +26,12 @@ public class ApplyService {
             throw new ApiException(ErrorCode.DUPLICATE_APPLY);
         }
 
+        /* 현재 응모자 수 확인 */
+        long count = applyRepository.count();
+        if (count >= 100) {
+            throw new ApiException(ErrorCode.APPLY_LIMIT_EXCEEDED);
+        }
+
         try {
             /* 서버에서 현재 시간 측정 */
             long currentServerTime = System.currentTimeMillis();
