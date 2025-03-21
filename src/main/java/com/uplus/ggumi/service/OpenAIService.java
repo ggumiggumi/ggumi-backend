@@ -1,3 +1,4 @@
+/*
 package com.uplus.ggumi.service;
 
 import lombok.RequiredArgsConstructor;
@@ -97,3 +98,4 @@ public class OpenAIService {
         return content; // content 반환
     }
 }
+*/

@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class Apply {
 
     @Id
@@ -24,6 +22,7 @@ public class Apply {
     private String phoneNumber;
     private Long applyTime;
 
+    @Builder
     public Apply(String name, String phoneNumber, Long applyTime) {
         this.name = name;
         this.phoneNumber = phoneNumber;

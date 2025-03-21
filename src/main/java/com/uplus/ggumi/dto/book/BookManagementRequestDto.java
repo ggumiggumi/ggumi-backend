@@ -39,7 +39,6 @@ public class BookManagementRequestDto {
 	public void updateEI(double EI) { // MBTI 값의 setter
 		this.EI = EI;
 	}
-
 	public void updateSN(double SN) {
 		this.SN = SN;
 	}

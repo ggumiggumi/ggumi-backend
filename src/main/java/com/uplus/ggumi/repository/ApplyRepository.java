@@ -1,19 +1,25 @@
 package com.uplus.ggumi.repository;
 
-import java.util.List;
-
+import com.uplus.ggumi.domain.apply.Apply;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.uplus.ggumi.domain.apply.Apply;
+import java.util.List;
 
 @Repository
 public interface ApplyRepository extends JpaRepository<Apply, Long> {
 
-	@Query(value = "SELECT * FROM apply WHERE apply_time >= :startTime ORDER BY apply_time ASC LIMIT 100", nativeQuery = true)
-	List<Apply> findTop100AfterSpecificTime(@Param("startTime") Long startTime);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    boolean existsByPhoneNumber(String phoneNumber);
 
-	boolean existsByPhoneNumber(String phoneNumber);
+    @Query(value =
+            "SELECT * FROM apply " +
+                    "WHERE apply_time >= :startTime " +
+                    "ORDER BY apply_time ASC LIMIT 100",
+            nativeQuery = true)
+    List<Apply> findTop100AfterSpecificTime(@Param("startTime") Long startTime);
 }

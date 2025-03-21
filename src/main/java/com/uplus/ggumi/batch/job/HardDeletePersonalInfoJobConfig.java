@@ -1,3 +1,4 @@
+/*
 package com.uplus.ggumi.batch.job;
 
 import java.time.LocalDateTime;
@@ -174,3 +175,4 @@ public class HardDeletePersonalInfoJobConfig {
 			.build();
 	}
 }
+*/
